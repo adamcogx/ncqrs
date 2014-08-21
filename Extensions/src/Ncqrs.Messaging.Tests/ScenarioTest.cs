@@ -3,6 +3,7 @@ using Ncqrs.Domain;
 using Ncqrs.Eventing.ServiceModel.Bus;
 using NUnit.Framework;
 using Ncqrs.Eventing.Sourcing;
+using System.Threading;
 
 namespace Ncqrs.Messaging.Tests
 {
@@ -55,8 +56,9 @@ namespace Ncqrs.Messaging.Tests
             messageService.UseReceivingStrategy(new ConditionalReceivingStrategy(x => true, new LocalReceivingStrategy()));
 
             var messageSendingEventHandler = new MessageSendingEventHandler();
-            var sendingStrategy = new FakeSendingStrategy();
+            var sendingStrategy = new FakeSendingStrategy(messageService);
             messageSendingEventHandler.UseStrategy(new ConditionalSendingStrategy(x => true, sendingStrategy));
+
             ((InProcessEventBus)NcqrsEnvironment.Get<IEventBus>()).RegisterHandler(messageSendingEventHandler);
 
             //Book new cargo
@@ -75,8 +77,10 @@ namespace Ncqrs.Messaging.Tests
                                       });
 
             //Process message from event to cargo
-            object message = sendingStrategy.DequeueMessage();
-            messageService.Process(message);
+            //object message = sendingStrategy.DequeueMessage();
+            //messageService.Process(message);
+
+            Thread.Sleep(1000); // The FakeSendingStrategy switches threads to process the message, so we need to wait for it to complete.
 
             using (var uow = NcqrsEnvironment.Get<IUnitOfWorkFactory>().CreateUnitOfWork(Guid.NewGuid()))
             {

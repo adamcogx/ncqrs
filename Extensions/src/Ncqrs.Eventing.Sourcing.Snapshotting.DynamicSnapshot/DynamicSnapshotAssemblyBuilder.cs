@@ -10,7 +10,7 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
     /// <summary>
     /// Class for building snapshot assembly.
     /// </summary>
-    internal sealed class DynamicSnapshotAssemblyBuilder
+    public sealed class DynamicSnapshotAssemblyBuilder
     {
         public const string DefaultModuleName = "DynamicSnapshot.dll";
 

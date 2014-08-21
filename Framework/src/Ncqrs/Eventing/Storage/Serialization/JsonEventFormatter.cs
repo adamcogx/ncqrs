@@ -3,6 +3,7 @@ using System.Diagnostics.Contracts;
 using Ncqrs.Eventing.Sourcing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace Ncqrs.Eventing.Storage.Serialization
 {
@@ -12,7 +13,7 @@ namespace Ncqrs.Eventing.Storage.Serialization
     public class JsonEventFormatter : IEventFormatter<JObject>
     {
         private readonly IEventTypeResolver _typeResolver;
-        private readonly JsonSerializer _serializer;
+        private JsonSerializer _serializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JsonEventFormatter"/> class
@@ -26,21 +27,36 @@ namespace Ncqrs.Eventing.Storage.Serialization
             Contract.Requires<ArgumentNullException>(typeResolver != null, "typeResolver");
 
             _typeResolver = typeResolver;
-            _serializer = new JsonSerializer();
+        }
+
+        private JsonSerializer Serializer
+        {
+            get
+            {
+                if (_serializer == null)
+                {
+                    _serializer = new JsonSerializer()
+                    {
+                        ContractResolver = NcqrsEnvironment.Get<IContractResolver>()
+                    };
+                }
+
+                return _serializer;
+            }
         }
 
         public object Deserialize(JObject obj, string eventName)
         {
             var eventType = _typeResolver.ResolveType(eventName);
             var reader = obj.CreateReader();
-            var theEvent = _serializer.Deserialize(reader, eventType);
+            var theEvent = Serializer.Deserialize(reader, eventType);
             return theEvent;
         }
 
         public JObject Serialize(object theEvent, out string eventName)
         {
             eventName = _typeResolver.EventNameFor(theEvent.GetType());
-            return JObject.FromObject(theEvent, _serializer);
+            return JObject.FromObject(theEvent, Serializer);
         }
     }
 }

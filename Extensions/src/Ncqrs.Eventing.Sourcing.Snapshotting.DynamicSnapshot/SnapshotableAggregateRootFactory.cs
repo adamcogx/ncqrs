@@ -1,13 +1,17 @@
 using System;
 using Castle.DynamicProxy;
 using Ncqrs.Domain;
+using System.Linq;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 {
-    internal class SnapshotableAggregateRootFactory
+    public class SnapshotableAggregateRootFactory
     {
         private readonly SnapshotableImplementerFactory _snapshotableImplementerFactory;
         private readonly IDynamicSnapshotAssembly _dynamicSnapshotAssembly;
+        private readonly Dictionary<Type, ConstructorInfo> proxyCache = new Dictionary<Type, ConstructorInfo>();
 
         public SnapshotableAggregateRootFactory(IDynamicSnapshotAssembly dynamicSnapshotAssembly, SnapshotableImplementerFactory snapshotableImplementerFactory)
         {
@@ -22,12 +26,29 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 
             var snapshotType = _dynamicSnapshotAssembly.FindSnapshotType(aggregateType);
             var snapshotableImplementer = _snapshotableImplementerFactory.Create(snapshotType);
-            var generator = new ProxyGenerator();
 
-            var options = new ProxyGenerationOptions();
-            options.AddMixinInstance(snapshotableImplementer);
+            if (!proxyCache.ContainsKey(aggregateType))
+            {
+                var generator = new ProxyGenerator();
 
-            var proxy = (AggregateRoot)generator.CreateClassProxy(aggregateType, options);
+                var options = new ProxyGenerationOptions();
+                options.AddMixinInstance(snapshotableImplementer);
+
+                var proxyTemp = (AggregateRoot)generator.CreateClassProxy(aggregateType, options);
+
+                var constructors = proxyTemp.GetType().GetConstructors();
+
+                foreach (var constructor in constructors)
+                {
+                    if (constructor.GetParameters().Count() == 4)
+                    {
+                        proxyCache[aggregateType] = constructor;
+                        break;
+                    }
+                }
+            }
+
+            var proxy = (AggregateRoot)proxyCache[aggregateType].Invoke(new object[] { snapshotableImplementer, snapshotableImplementer, snapshotableImplementer, null });
             ((IHaveProxyReference)proxy).Proxy = proxy;
 
             return proxy;

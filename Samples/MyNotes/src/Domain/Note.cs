@@ -4,6 +4,9 @@ using Events;
 using Ncqrs.Domain;
 using Ncqrs.Eventing.Sourcing.Snapshotting;
 using Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot;
+using System.Collections.Generic;
+using Domain;
+using System.Linq;
 
 namespace MyProject.Domain
 {
@@ -12,6 +15,9 @@ namespace MyProject.Domain
     {
         private String _text;
         private DateTime _creationDate;
+        private List<DateTime> _changes = new List<DateTime>();
+        //private List<Reviewer> _reviewers = new List<Reviewer>();
+        private Dictionary<int, string> _names;
 
         public Note()
         {
@@ -43,8 +49,19 @@ namespace MyProject.Domain
             // this event (the NoteTextChanged method).
             ApplyEvent(new NoteTextChanged
             {
-                NewText = newText
+                NewText = newText,
+                When = DateTime.Now
             });
+        }
+
+        public void AddReviewer(Guid reviewerId, string name)
+        {
+            //ApplyEvent(new NoteReviewerAdded() { ReviewerId = reviewerId, Name = name });
+        }
+
+        public void ChangeReviewerName(Guid reviewerId, string newName)
+        {
+            //_reviewers.First(x => x.EntityId == reviewerId).UpdateName(newName);
         }
 
         // Event handler for the NewNoteAdded event. This method
@@ -53,6 +70,7 @@ namespace MyProject.Domain
         {
             _text = e.Text;
             _creationDate = e.CreationDate;
+            _changes.Add(e.CreationDate);
         }
 
         // Event handler for the NoteTextChanged event. This method
@@ -60,8 +78,15 @@ namespace MyProject.Domain
         protected void OnNoteTextChanged(NoteTextChanged e)
         {
             _text = e.NewText;
+            _changes.Add(e.When);
         }
 
+        protected void OnNoteReviewerAdded(NoteReviewerAdded e)
+        {
+            //_reviewers.Add(new Reviewer(this, e.ReviewerId, e.Name));
+        }
+
+        
     }
 
 }

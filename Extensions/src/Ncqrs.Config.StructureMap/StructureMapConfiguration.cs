@@ -48,7 +48,7 @@ namespace Ncqrs.Config.StructureMap
         public bool TryGet<T>(out T result) where T : class
         {
             result = default(T);
-            var foundInstance = ObjectFactory.TryGetInstance<T>();
+            var foundInstance = ObjectFactory.Container.TryGetInstance<T>();
 
             if (foundInstance != null)
             {

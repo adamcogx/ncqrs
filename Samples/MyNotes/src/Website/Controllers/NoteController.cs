@@ -57,6 +57,10 @@ namespace Website.Controllers
             ChannelHelper.Use(_channelFactory.CreateChannel(), (client) =>
                               client.Execute(new ExecuteRequest(command)));
 
+            ChangeNoteReviewerName reviewer = new ChangeNoteReviewerName() { NoteId = command.NoteId, ReviewerId = reviewerId, NewName = command.NewText + " Reviewer" };
+
+            ChannelHelper.Use(_channelFactory.CreateChannel(), (client) => client.Execute(new ExecuteRequest(reviewer)));
+
             // Return user back to the index that
             // displays all the notes.));
             return RedirectToAction("Index", "Note");
@@ -70,11 +74,17 @@ namespace Website.Controllers
             return View(command);
         }
 
+        private Guid reviewerId = Guid.Parse("{FEADAEC9-45B4-4C98-8886-16B489D91AAE}");
+
         [HttpPost]
         public ActionResult Add(CreateNewNote command)
         {
             ChannelHelper.Use(_channelFactory.CreateChannel(), (client) =>
                                 client.Execute(new ExecuteRequest(command)));
+
+            AddNoteReviewer reviewer = new AddNoteReviewer() { NoteId = command.NoteId, ReviewerId = reviewerId, Name = "First"};
+
+            ChannelHelper.Use(_channelFactory.CreateChannel(), (client) => client.Execute(new ExecuteRequest(reviewer)));
 
             // Return user back to the index that
             // displays all the notes.));

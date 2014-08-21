@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core">
       <HintPath>..\..\..\..\lib\ThirdParty\CastleWindsor\Castle.Core.dll</HintPath>
@@ -105,6 +108,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Extensions\src\Ncqrs.Eventing.Sourcing.Snapshotting.Windsor\Ncqrs.Eventing.Sourcing.Snapshotting.Windsor.csproj">
+      <Project>{d592752a-ad93-4592-93ad-6df6ace416a8}</Project>
+      <Name>Ncqrs.Eventing.Sourcing.Snapshotting.Windsor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Commands\Commands.csproj">
       <Project>{CF0635EB-DFA4-4E82-B245-A0F125183E08}</Project>
       <Name>Commands %28Samples\MyNotes\Commands%29</Name>
@@ -124,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

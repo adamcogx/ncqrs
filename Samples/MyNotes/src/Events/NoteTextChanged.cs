@@ -11,5 +11,7 @@ namespace Events
             get;
             set;
         }
+
+        public DateTime When { get; set; }
     }
 }

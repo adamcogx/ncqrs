@@ -7,7 +7,7 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
     /// <summary>
     /// Represents snapshotable aggregate root.
     /// </summary>
-    internal class DynamicSnapshotAggregateRootCreationStrategy : IAggregateRootCreationStrategy
+    public class DynamicSnapshotAggregateRootCreationStrategy : IAggregateRootCreationStrategy
     {
         private readonly SnapshotableAggregateRootFactory _factory;
 

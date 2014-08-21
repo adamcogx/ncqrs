@@ -69,8 +69,10 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="StructureMap">
-      <HintPath>..\..\..\lib\ThirdParty\StructureMap\StructureMap.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\packages\structuremap.3.0.5.130\lib\net40\StructureMap.dll</HintPath>
+    </Reference>
+    <Reference Include="StructureMap.Net4">
+      <HintPath>..\..\..\packages\structuremap.3.0.5.130\lib\net40\StructureMap.Net4.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -83,6 +85,9 @@
   <ItemGroup>
     <Compile Include="StructureMapConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,7 +6,7 @@ using Ncqrs.Domain;
 
 namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 {
-    internal class DynamicSnapshotTypeBuilder
+    public class DynamicSnapshotTypeBuilder
     {
         private readonly Type SnapshotBaseType = typeof(DynamicSnapshotBase);
 
@@ -55,6 +55,7 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
             var fieldMap = SnapshotableField.GetMap(sourceType);
             foreach (var pair in fieldMap)
             {
+                //TODO: We need to analyze the pair.Value and potentially create new types to replace it with.
                 typeBuilder.DefineField(pair.Key, pair.Value.FieldType, FieldAttributes.Public);
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Ncqrs.Domain;
+using Ncqrs.Domain.Storage;
 
 namespace Ncqrs.Messaging
 {
@@ -42,7 +43,7 @@ namespace Ncqrs.Messaging
         {
             return _receiverResolutionStrategies
                 .Select(x => x.Receive(message))
-                .FirstOrDefault(x => x != null);            
+                .FirstOrDefault(x => x != null);
         }
 
         private static void CheckProcessingRequirements(IncomingMessage message, object existingReceiver)
@@ -64,11 +65,9 @@ namespace Ncqrs.Messaging
             return existingReceiver != null && message.ProcessingRequirements == MessageProcessingRequirements.RequiresNew;
         }
 
-        private static IMessagingAggregateRoot CreateNewAggregateInstance(Type recieverType, Guid id)
+        private static IMessagingAggregateRoot CreateNewAggregateInstance(Type receiverType, Guid id)
         {
-            return (IMessagingAggregateRoot)Activator.CreateInstance(recieverType, new object[] {id});
+            return (IMessagingAggregateRoot)Activator.CreateInstance(receiverType, new object[] {id});
         }
-
-
     }
 }

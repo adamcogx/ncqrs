@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddNoteReviewer.cs" />
+    <Compile Include="ChangeNoteReviewerName.cs" />
     <Compile Include="CreateNewNote.cs" />
     <Compile Include="ChangeNoteText.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

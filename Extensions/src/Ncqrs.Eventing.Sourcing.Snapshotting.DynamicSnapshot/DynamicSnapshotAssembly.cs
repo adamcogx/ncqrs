@@ -4,13 +4,14 @@ using System.Reflection;
 using Ncqrs.Domain;
 using Castle.DynamicProxy;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 {
     /// <summary>
     /// Provides a way to create an assembly with snapshot types and finder for snapshot types.
     /// </summary>
-    internal class DynamicSnapshotAssembly : IDynamicSnapshotAssembly
+    public class DynamicSnapshotAssembly : IDynamicSnapshotAssembly
     {
         private readonly DynamicSnapshotAssemblyBuilder _assemblyBuidler;
 
@@ -53,6 +54,8 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
             return _snapshotAssembly;
         }
 
+        private Dictionary<string, Type> snapshotTypes = new Dictionary<string, Type>();
+
         /// <summary>
         /// Finds a snapshot type.
         /// </summary>
@@ -60,16 +63,28 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
         /// <returns></returns>
         public Type FindSnapshotType(Type aggregateType)
         {
-            LoadSnapshotAssembly();
-
             var aggregateTypeName = aggregateType.Name + "_Snapshot";
-            var snapshotType = _snapshotAssembly.GetTypes().SingleOrDefault(type => type.Name.StartsWith(aggregateTypeName));
 
-            if (snapshotType == null)
-                throw new DynamicSnapshotException(string.Format(
-                    "Cannot find snapshot in '{0}' for type [{1}]. Consider rebuilding the dynamic snapshot assembly.",
-                    _snapshotAssembly.FullName,
-                    aggregateTypeName));
+            Type snapshotType;
+
+            if (!snapshotTypes.ContainsKey(aggregateTypeName))
+            {
+                LoadSnapshotAssembly();
+
+                snapshotType = _snapshotAssembly.GetTypes().SingleOrDefault(type => type.Name.StartsWith(aggregateTypeName));
+
+                if (snapshotType == null)
+                    throw new DynamicSnapshotException(string.Format(
+                        "Cannot find snapshot in '{0}' for type [{1}]. Consider rebuilding the dynamic snapshot assembly.",
+                        _snapshotAssembly.FullName,
+                        aggregateTypeName));
+
+                snapshotTypes[aggregateTypeName] = snapshotType;
+            }
+            else
+            {
+                snapshotType = snapshotTypes[aggregateTypeName];
+            }
 
             return snapshotType;
         }

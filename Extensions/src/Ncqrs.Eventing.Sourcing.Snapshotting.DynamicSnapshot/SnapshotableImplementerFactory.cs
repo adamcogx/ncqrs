@@ -2,7 +2,7 @@ using System;
 
 namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 {
-    internal class SnapshotableImplementerFactory
+    public class SnapshotableImplementerFactory
     {
         public SnapshotableImplementerFactory()
         {

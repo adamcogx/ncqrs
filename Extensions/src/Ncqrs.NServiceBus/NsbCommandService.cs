@@ -25,6 +25,7 @@ namespace Ncqrs.NServiceBus
         {
             base.RegisterExecutor(executor);
         }
+
         protected override Action<ICommand> GetCommandExecutorForCommand(Type commandType)
         {
             var registeredExecutor = base.GetCommandExecutorForCommand(commandType);

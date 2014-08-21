@@ -1,0 +1,2 @@
+SnapshotRestorerFactory.Create - Cache the genericType generated.
+
