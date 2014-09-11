@@ -135,15 +135,11 @@ namespace Ncqrs.Messaging.Tests
 
         private readonly ICommandService commandService;
         private readonly IMessageService messageService;
-        private readonly IEventStore eventStore;
 
         public MessagingEnvironmentConfiguration()
         {
             messageService = InitializeMessageService();
             commandService = InitializeCommandService();
-            var conn = @"Data Source=d:\dev\mydb.db;";
-            SQLiteEventStore.EnsureDatabaseExists(conn);
-            eventStore = new Ncqrs.Eventing.Storage.SQLite.SQLiteEventStore(new Ncqrs.Eventing.Storage.SQLite.DefaultSQLiteContext(conn + ";Version=3;"));
         }
 
         public bool TryGet<T>(out T result) where T : class
@@ -153,8 +149,6 @@ namespace Ncqrs.Messaging.Tests
                 result = (T)commandService;
             if (typeof(T) == typeof(IMessageService))
                 result = (T)messageService;
-            if (typeof(T) == typeof(IEventStore))
-                result = (T)eventStore;
             return result != null;
         }
     }

@@ -2,7 +2,6 @@
 
 namespace Ncqrs.Messaging
 {
-    [Serializable]
     public class OutgoingMessage
     {
         public object Payload { get; set; }
