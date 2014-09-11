@@ -4,6 +4,9 @@ using Ncqrs.Eventing.ServiceModel.Bus;
 using NUnit.Framework;
 using Ncqrs.Eventing.Sourcing;
 using System.Threading;
+using Ncqrs.Commanding.ServiceModel;
+using Ncqrs.Commanding;
+using Ncqrs.Commanding.CommandExecution.Mapping.Attributes;
 
 namespace Ncqrs.Messaging.Tests
 {
@@ -48,7 +51,7 @@ namespace Ncqrs.Messaging.Tests
                                  {
                                      MessageId = x.MessageId,
                                      Payload = x,
-                                     ProcessingRequirements = MessageProcessingRequirements.RequiresNew,
+                                     ProcessingRequirements = MessageProcessingRequirements.RequiresExisting,
                                      ReceiverId = x.EventId,
                                      ReceiverType = typeof (HandlingEvent),
                                      SenderId = "Client"
@@ -61,6 +64,9 @@ namespace Ncqrs.Messaging.Tests
 
             ((InProcessEventBus)NcqrsEnvironment.Get<IEventBus>()).RegisterHandler(messageSendingEventHandler);
 
+            CommandService service = new CommandService();
+            service.RegisterExecutorsInAssembly(this.GetType().Assembly);
+
             //Book new cargo
             messageService.Process(new BookCargoMessage
                                       {
@@ -68,13 +74,15 @@ namespace Ncqrs.Messaging.Tests
                                           MessageId = Guid.NewGuid(),                                          
                                       });
 
+            service.Execute(new BeginHandlingCommand() { Id = Guid.NewGuid(), cargoId = cargoId });
+
             //Register new handling event
-            messageService.Process(new RegisterHandlingEventMesasge
-                                      {
-                                          EventId = firstEventId,
-                                          MessageId = Guid.NewGuid(),
-                                          CargoId = cargoId
-                                      });
+            //messageService.Process(new RegisterHandlingEventMesasge
+            //                          {
+            //                              EventId = firstEventId,
+            //                              MessageId = Guid.NewGuid(),
+            //                              CargoId = cargoId
+            //                          });
 
             //Process message from event to cargo
             //object message = sendingStrategy.DequeueMessage();
@@ -96,17 +104,32 @@ namespace Ncqrs.Messaging.Tests
             public Guid CargoId { get; set; }
         }
 
+        [MapsToAggregateRootConstructor(typeof(HandlingEvent))]
+        public class BeginHandlingCommand : CommandBase
+        {
+            public Guid Id { get; set; }
+            public Guid cargoId { get; set; }
+        }
+
         public class BookCargoMessage
         {
             public Guid MessageId { get; set; }
             public Guid CargoId { get; set; }
         }
 
+        [MapsToAggregateRootConstructor(typeof(Cargo))]
+        public class BookCargoCommand : CommandBase
+        {
+            public Guid Id { get; set; }
+        }
+
         public class CargoWasHandledMessage
         {
         }
 
-        public class HandlingEvent : MessagingAggregateRoot, IMessageHandler<RegisterHandlingEventMesasge>
+        public class HandlingBeganEvent { }
+
+        public class HandlingEvent : MessagingAggregateRoot
         {
             private Guid _cargoId;
 
@@ -114,16 +137,12 @@ namespace Ncqrs.Messaging.Tests
             {                
             }
 
-            public HandlingEvent(Guid id) : base(id)
-            {                
-            }
-
-            public void Handle(RegisterHandlingEventMesasge message)
+            public HandlingEvent(Guid id, Guid cargoId) : base(id)
             {
                 ApplyEvent(new HandlingEventRegistered
-                              {
-                                  CargoId = message.CargoId
-                              });
+                {
+                    CargoId = cargoId
+                });
 
                 To().Aggregate<Cargo>(_cargoId)
                     .Ensuring(MessageProcessingRequirements.RequiresExisting)
