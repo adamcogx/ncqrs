@@ -64,8 +64,17 @@
     <Compile Include="MessagingAggregateRootTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScenarioTest.cs" />
+    <Compile Include="ScenarioTestExtended.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\src\Ncqrs.Spec\Ncqrs.Spec.csproj">
+      <Project>{aa90754b-ca47-429e-bdc8-2a83e94179b7}</Project>
+      <Name>Ncqrs.Spec</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Ncqrs.Eventing.Storage.SqlLite\Ncqrs.Eventing.Storage.SQLite.csproj">
+      <Project>{dd28a7e6-a864-43f1-ab94-fc854add9aa0}</Project>
+      <Name>Ncqrs.Eventing.Storage.SQLite</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Ncqrs.Messaging\Ncqrs.Messaging.csproj">
       <Project>{3624C541-6D6E-4AAC-B70A-7A769FB5C442}</Project>
       <Name>Ncqrs.Messaging</Name>

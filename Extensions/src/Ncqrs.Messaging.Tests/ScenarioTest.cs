@@ -62,7 +62,8 @@ namespace Ncqrs.Messaging.Tests
             var sendingStrategy = new FakeSendingStrategy(messageService);
             messageSendingEventHandler.UseStrategy(new ConditionalSendingStrategy(x => true, sendingStrategy));
 
-            ((InProcessEventBus)NcqrsEnvironment.Get<IEventBus>()).RegisterHandler(messageSendingEventHandler);
+            var bus = ((InProcessEventBus)NcqrsEnvironment.Get<IEventBus>());
+            bus.RegisterHandler(messageSendingEventHandler);
 
             CommandService service = new CommandService();
             service.RegisterExecutorsInAssembly(this.GetType().Assembly);
@@ -97,6 +98,7 @@ namespace Ncqrs.Messaging.Tests
             }
         }
 
+        [Serializable]
         public class RegisterHandlingEventMesasge
         {
             public Guid MessageId { get; set; }
@@ -111,6 +113,7 @@ namespace Ncqrs.Messaging.Tests
             public Guid cargoId { get; set; }
         }
 
+        [Serializable]
         public class BookCargoMessage
         {
             public Guid MessageId { get; set; }
@@ -123,6 +126,7 @@ namespace Ncqrs.Messaging.Tests
             public Guid Id { get; set; }
         }
 
+        [Serializable]
         public class CargoWasHandledMessage
         {
         }
