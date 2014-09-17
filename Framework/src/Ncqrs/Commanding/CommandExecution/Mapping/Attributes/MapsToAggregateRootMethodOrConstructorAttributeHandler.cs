@@ -2,11 +2,14 @@
 using System.Linq;
 using System.Reflection;
 using Ncqrs.Domain;
+using Ncqrs.Domain.Storage;
 
 namespace Ncqrs.Commanding.CommandExecution.Mapping.Attributes
 {
     public class MapsToAggregateRootMethodOrConstructorAttributeHandler : IMappingAttributeHandler<MapsToAggregateRootMethodOrConstructorAttribute>
     {
+        private IAggregateRootCreationStrategy _creationStrategy;
+
         public void Map(MapsToAggregateRootMethodOrConstructorAttribute attribute, ICommand command, IMappedCommandExecutor executor)
         {
             var commandType = command.GetType();
@@ -21,12 +24,7 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping.Attributes
                     match.Item1.Invoke(agg, parameter.ToArray());
                 };
 
-            var creatingMatch = GetMatchingConstructor(attribute, commandType);
-            Func<ICommand, AggregateRoot> create = (c) =>
-            {
-                var parameter = match.Item2.Select(p => p.GetValue(c, null));
-                return (AggregateRoot)creatingMatch.Item1.Invoke(parameter.ToArray());
-            };
+            Func<ICommand, AggregateRoot> create = (c) => CreationStrategy.CreateAggregateRootFromCommand(attribute.Type, c);
 
             Action executorAction = () => executor.ExecuteActionOnExistingOrCreatingNewInstance(GetAggregateRootId, GetAggregateRootType, existingAction, create);
 
@@ -38,6 +36,19 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping.Attributes
             else
             {
                 executorAction();
+            }
+        }
+
+        protected IAggregateRootCreationStrategy CreationStrategy
+        {
+            get
+            {
+                if (this._creationStrategy == null)
+                {
+                    _creationStrategy = NcqrsEnvironment.Get<IAggregateRootCreationStrategy>();
+                }
+
+                return _creationStrategy;
             }
         }
 

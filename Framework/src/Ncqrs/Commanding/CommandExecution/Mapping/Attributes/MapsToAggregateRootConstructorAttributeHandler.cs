@@ -2,22 +2,20 @@
 using System.Linq;
 using System.Reflection;
 using Ncqrs.Domain;
+using Ncqrs.Domain.Storage;
 
 namespace Ncqrs.Commanding.CommandExecution.Mapping.Attributes
 {
     public class MapsToAggregateRootConstructorAttributeHandler : IMappingAttributeHandler<MapsToAggregateRootConstructorAttribute>
     {
+        private IAggregateRootCreationStrategy _creationStrategy;
+
         public void Map(MapsToAggregateRootConstructorAttribute attribute, ICommand command, IMappedCommandExecutor executor)
         {
             var commandType = command.GetType();
             ValidateCommandType(commandType);
 
-            var match = GetMatchingConstructor(attribute, commandType);
-            Func<ICommand, AggregateRoot> create = (c) =>
-                                                       {
-                                                           var parameter = match.Item2.Select(p => p.GetValue(c, null));
-                                                           return (AggregateRoot)match.Item1.Invoke(parameter.ToArray());
-                                                       };
+            Func<ICommand, AggregateRoot> create = (c) => _creationStrategy.CreateAggregateRootFromCommand(attribute.Type, c);
 
             Action executorAction = () => executor.ExecuteActionCreatingNewInstance(create);
 
@@ -32,12 +30,16 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping.Attributes
             }
         }
 
-        private static Tuple<ConstructorInfo, PropertyInfo[]> GetMatchingConstructor(MapsToAggregateRootConstructorAttribute attribute, Type commandType)
-        {
-            var strategy = new AttributePropertyMappingStrategy();
-            var sources = strategy.GetMappedProperties(commandType);
+        protected IAggregateRootCreationStrategy CreationStrategy {
+            get
+            {
+                if (this._creationStrategy == null)
+                {
+                    _creationStrategy = NcqrsEnvironment.Get<IAggregateRootCreationStrategy>();
+                }
 
-            return PropertiesToMethodMapper.GetConstructor(sources, attribute.Type);
+                return _creationStrategy;
+            }
         }
 
         private static void ValidateCommandType(Type mappedCommandType)
