@@ -109,6 +109,11 @@ namespace Ncqrs.Commanding.ServiceModel
         protected virtual Action<ICommand> GetCommandExecutorForCommand(Type commandType)
         {
             Action<ICommand> result;
+            if (commandType.IsGenericType) 
+            {
+                commandType = commandType.GetGenericTypeDefinition();
+            }
+
             _executors.TryGetValue(commandType, out result);
 
             return result;

@@ -6,7 +6,7 @@ using Ninject;
 namespace Ncqrs.Config.Ninject
 {
     public class NinjectAggregateRootCreationStrategy
-        : AggregateRootCreationStrategy 
+        : SimpleAggregateRootCreationStrategy 
     {
 
         private readonly IKernel _kernel;
@@ -19,6 +19,13 @@ namespace Ncqrs.Config.Ninject
         protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType)
         {
             return (AggregateRoot) _kernel.Get(aggregateRootType);
+        }
+
+        protected override AggregateRoot CreateAggregateRootFromTypeAndCommand(Type aggregateRootType, Commanding.ICommand command)
+        {
+            var root = base.CreateAggregateRootFromTypeAndCommand(aggregateRootType, command);
+            _kernel.Inject(root);
+            return root;
         }
     }
 }

@@ -40,8 +40,10 @@ namespace Ncqrs.Eventing.Sourcing.Mapping
         public ConventionBasedEventHandlerMappingStrategy()
         {
             MethodNameRegexPattern = "^(on|On|ON)+";
-            EventBaseType = typeof (Object);
+            EventBaseType = typeof(Object);
         }
+
+        private static Dictionary<Tuple<MethodBase, Type>, MethodInfo> cachedEventHandlerMethods = new Dictionary<Tuple<MethodBase, Type>, MethodInfo>();
 
         public IEnumerable<ISourcedEventHandler> GetEventHandlers(object target)
         {
@@ -76,7 +78,44 @@ namespace Ncqrs.Eventing.Sourcing.Mapping
                 var methodCopy = method.MethodInfo;
                 Type firstParameterType = methodCopy.GetParameters().First().ParameterType;
 
-                Action<object> invokeAction = (e) => methodCopy.Invoke(target, new[] { e });
+                Action<object> invokeAction = (e) =>
+                {
+                    var key = Tuple.Create((MethodBase)methodCopy, e.GetType());
+                    if (cachedEventHandlerMethods.ContainsKey(key))
+                    {
+                        methodCopy = cachedEventHandlerMethods[key];
+                    }
+                    else
+                    {
+                        if (methodCopy.IsGenericMethodDefinition)
+                        {
+                            var arguments = methodCopy.GetGenericArguments();
+                            var eventType = e.GetType();
+                            if (arguments.Length == 1)
+                            {
+                                if (arguments[0].BaseType.IsAssignableFrom(eventType))
+                                {
+                                    methodCopy = methodCopy.MakeGenericMethod(eventType);
+                                }
+                                else
+                                {
+                                    var eventArgs = eventType.GetGenericArguments();
+                                    foreach (var eventArg in eventArgs)
+                                    {
+                                        if (arguments[0].BaseType.IsAssignableFrom(eventArg))
+                                        {
+                                            methodCopy = methodCopy.MakeGenericMethod(eventArg);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            cachedEventHandlerMethods[key] = methodCopy;
+                        }
+                    }
+
+                    methodCopy.Invoke(target, new[] { e });
+                };
 
                 Logger.DebugFormat("Created event handler for method {0} based on convention.", methodCopy.Name);
 

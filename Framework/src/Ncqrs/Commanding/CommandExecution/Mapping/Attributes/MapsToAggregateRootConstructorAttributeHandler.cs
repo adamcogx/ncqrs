@@ -15,7 +15,10 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping.Attributes
             var commandType = command.GetType();
             ValidateCommandType(commandType);
 
-            Func<ICommand, AggregateRoot> create = (c) => _creationStrategy.CreateAggregateRootFromCommand(attribute.Type, c);
+            Func<ICommand, AggregateRoot> create = (c) =>
+            {
+                return CreationStrategy.CreateAggregateRootFromCommand(attribute.Type, c);
+            };
 
             Action executorAction = () => executor.ExecuteActionCreatingNewInstance(create);
 

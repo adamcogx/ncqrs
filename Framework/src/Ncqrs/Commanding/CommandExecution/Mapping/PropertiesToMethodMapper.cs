@@ -37,7 +37,7 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping
         {
             IEnumerable<MethodInfo> potentialTargets = targetType.GetMethods(All);
 
-            if(methodName != null)
+            if (methodName != null)
             {
                 potentialTargets = potentialTargets.Where
                 (
@@ -59,7 +59,7 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping
             MakeSureAllPropertieOrdinalsAreUnique(propertiesToMap);
 
             // Remove all targets that do no match the parameter count.
-            targets.RemoveAll(t=>!HasCorrectParameterCount(t, propertiesToMap.Count));
+            targets.RemoveAll(t => !HasCorrectParameterCount(t, propertiesToMap.Count));
 
             if (targets.IsEmpty())
             {
@@ -92,6 +92,29 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping
             }
 
             var match = matches.Single();
+            if (match.Item1.IsGenericMethodDefinition)
+            {
+                List<Type> genericTypeParamters = new List<Type>();
+                var generics = match.Item1.GetGenericArguments();
+                var parameters = match.Item1.GetParameters();
+
+                foreach (var generic in generics)
+                {
+                    var parameter = parameters.Where(x => x.ParameterType == generic).FirstOrDefault();
+                    
+                    if (parameter == null)
+                    {
+                        throw new ArgumentException(string.Format("Cannot find concrete type for {0} on {1}", generic.Name, match.Item1.Name));
+                    }
+
+                    var position = parameter.Position;
+                    var potentialMatch = sources.ElementAt(position);
+                    genericTypeParamters.Add(potentialMatch.Property.PropertyType);
+                }
+
+                var newMethod = ((MethodInfo)match.Item1).MakeGenericMethod(genericTypeParamters.ToArray());
+                match = Tuple.Create((MethodBase)newMethod, match.Item2);
+            }
             return new Tuple<TMethodBase, PropertyInfo[]>((TMethodBase)match.Item1, match.Item2);
         }
 
@@ -102,9 +125,9 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping
             var query = from p in propertiesToMap
                         where p.Ordinal.HasValue
                         group p by p.Ordinal
-                        into g
-                        where g.Count() > 1
-                        select g.First();
+                            into g
+                            where g.Count() > 1
+                            select g.First();
 
             if (query.Count() > 0)
             {
@@ -121,9 +144,9 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping
             var query = from p in propertiesToMap
                         where !p.TargetName.IsNullOrEmpty()
                         group p by p.TargetName
-                        into g
-                        where g.Count() > 1
-                        select g.First();
+                            into g
+                            where g.Count() > 1
+                            select g.First();
 
             if (query.Count() > 0)
             {

@@ -105,16 +105,40 @@ namespace Ncqrs.Eventing.Sourcing
             var shouldHandle = false;
 
             var dataType = evnt.GetType();
+            Type[] dataTypeArguments = null;
+            Type[] thresholdArguments = null;
+            Type thresholdType = null;
+
+            if (dataType.IsGenericType)
+            {
+                dataType = dataType.GetGenericTypeDefinition();
+                dataTypeArguments = dataType.GetGenericArguments();
+            }
+
+            if (_eventTypeThreshold.ContainsGenericParameters)
+            {
+                thresholdArguments = _eventTypeThreshold.GetGenericArguments();
+                thresholdType = _eventTypeThreshold.GetGenericTypeDefinition();
+            }
+            else
+            {
+                thresholdType = _eventTypeThreshold;
+            }
+
+            if (dataTypeArguments != null && thresholdArguments != null)
+            {
+
+            }
 
             // This is true when the eventTypeThreshold is 
             // true if event type and the threshold type represent the same type, or if the theshold type is in the inheritance hierarchy 
             // of the event type, or if the threshold type is an interface that event type implements.
-            if (_eventTypeThreshold.IsAssignableFrom(dataType))
+            if (thresholdType.IsAssignableFrom(dataType))
             {
                 if (_exact)
                 {
                     // Only handle the event when there is an exact match.
-                    shouldHandle = (_eventTypeThreshold == dataType);
+                    shouldHandle = (thresholdType == dataType);
                 }
                 else
                 {
