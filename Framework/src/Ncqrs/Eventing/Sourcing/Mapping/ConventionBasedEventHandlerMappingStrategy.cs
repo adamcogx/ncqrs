@@ -81,21 +81,22 @@ namespace Ncqrs.Eventing.Sourcing.Mapping
                 Action<object> invokeAction = (e) =>
                 {
                     var key = Tuple.Create((MethodBase)methodCopy, e.GetType());
+                    var tempCopy = methodCopy;
                     if (cachedEventHandlerMethods.ContainsKey(key))
                     {
-                        methodCopy = cachedEventHandlerMethods[key];
+                        tempCopy = cachedEventHandlerMethods[key];
                     }
                     else
                     {
-                        if (methodCopy.IsGenericMethodDefinition)
+                        if (tempCopy.IsGenericMethodDefinition)
                         {
-                            var arguments = methodCopy.GetGenericArguments();
+                            var arguments = tempCopy.GetGenericArguments();
                             var eventType = e.GetType();
                             if (arguments.Length == 1)
                             {
                                 if (arguments[0].BaseType.IsAssignableFrom(eventType))
                                 {
-                                    methodCopy = methodCopy.MakeGenericMethod(eventType);
+                                    tempCopy = tempCopy.MakeGenericMethod(eventType);
                                 }
                                 else
                                 {
@@ -104,17 +105,17 @@ namespace Ncqrs.Eventing.Sourcing.Mapping
                                     {
                                         if (arguments[0].BaseType.IsAssignableFrom(eventArg))
                                         {
-                                            methodCopy = methodCopy.MakeGenericMethod(eventArg);
+                                            tempCopy = tempCopy.MakeGenericMethod(eventArg);
                                             break;
                                         }
                                     }
                                 }
                             }
-                            cachedEventHandlerMethods[key] = methodCopy;
+                            cachedEventHandlerMethods[key] = tempCopy;
                         }
                     }
 
-                    methodCopy.Invoke(target, new[] { e });
+                    tempCopy.Invoke(target, new[] { e });
                 };
 
                 Logger.DebugFormat("Created event handler for method {0} based on convention.", methodCopy.Name);

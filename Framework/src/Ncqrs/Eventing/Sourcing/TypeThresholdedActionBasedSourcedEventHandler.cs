@@ -105,29 +105,20 @@ namespace Ncqrs.Eventing.Sourcing
             var shouldHandle = false;
 
             var dataType = evnt.GetType();
-            Type[] dataTypeArguments = null;
-            Type[] thresholdArguments = null;
             Type thresholdType = null;
 
             if (dataType.IsGenericType)
             {
                 dataType = dataType.GetGenericTypeDefinition();
-                dataTypeArguments = dataType.GetGenericArguments();
             }
 
             if (_eventTypeThreshold.ContainsGenericParameters)
             {
-                thresholdArguments = _eventTypeThreshold.GetGenericArguments();
                 thresholdType = _eventTypeThreshold.GetGenericTypeDefinition();
             }
             else
             {
                 thresholdType = _eventTypeThreshold;
-            }
-
-            if (dataTypeArguments != null && thresholdArguments != null)
-            {
-
             }
 
             // This is true when the eventTypeThreshold is 

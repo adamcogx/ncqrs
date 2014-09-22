@@ -108,7 +108,7 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping
                     }
 
                     var position = parameter.Position;
-                    var potentialMatch = sources.ElementAt(position);
+                    var potentialMatch = sources.First(x => x.TargetName.Equals(parameter.Name, StringComparison.InvariantCultureIgnoreCase));
                     genericTypeParamters.Add(potentialMatch.Property.PropertyType);
                 }
 
