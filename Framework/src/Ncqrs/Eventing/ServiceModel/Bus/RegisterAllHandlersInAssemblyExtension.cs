@@ -9,11 +9,23 @@ namespace Ncqrs.Eventing.ServiceModel.Bus
     {
         private static ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        /// <summary>
+        /// Registers all types that implement <see cref="Ncqrs.Eventing.ServiceModel.Bus.IEventHandler"/> as handlers for the given event.
+        /// </summary>
+        /// <param name="target">The <see cref="InProcessEventBus"/> to register the handlers in.</param>
+        /// <param name="asm">The assembly containing the types to register</param>
         public static void RegisterAllHandlersInAssembly(this InProcessEventBus target, Assembly asm)
         {
             target.RegisterAllHandlersInAssembly(asm, CreateInstance);
         }
 
+        /// <summary>
+        /// Registers all types that implement <see cref="Ncqrs.Eventing.ServiceModel.Bus.IEventHandler"/> as handlers for the given event using
+        /// the given function to instantiate the type.
+        /// </summary>
+        /// <param name="target">The <see cref="InProcessEventBus"/> to register the handlers in.</param>
+        /// <param name="asm">The assembly containing the types to register</param>
+        /// <param name="handlerFactory">The function used to instantiate the given handler type</param>
         public static void RegisterAllHandlersInAssembly(this InProcessEventBus target, Assembly asm, Func<Type, object> handlerFactory)
         {
             foreach(var type in asm.GetTypes().Where(ImplementsAtLeastOneIEventHandlerInterface))
@@ -21,6 +33,39 @@ namespace Ncqrs.Eventing.ServiceModel.Bus
                 var handler = handlerFactory(type);
 
                 foreach(var handlerInterfaceType in type.GetInterfaces().Where(IsIEventHandlerInterface))
+                {
+                    var eventDataType = handlerInterfaceType.GetGenericArguments().First();
+                    RegisterHandler(handler, eventDataType, target);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Registers all types that implement <see cref="Ncqrs.Eventing.ServiceModel.Bus.IEventHandler"/> and match the given criteria as handlers for the given event.
+        /// </summary>
+        /// <param name="target">The <see cref="InProcessEventBus"/> to register the handlers in.</param>
+        /// <param name="asm">The assembly containing the types to register</param>
+        /// <param name="matching">Function that decides if the type should be registered as a handler</param>
+        public static void RegisterAllHandlersInAssemblyMatching(this InProcessEventBus target, Assembly asm, Func<Type, bool> matching)
+        {
+            target.RegisterAllHandlersInAssemblyMatching(asm, matching, CreateInstance);
+        }
+
+        /// <summary>
+        /// Registers all types that implement <see cref="Ncqrs.Eventing.ServiceModel.Bus.IEventHandler"/> and match the given criteria as handlers for the given event
+        /// using the given factory method to instantiate the handler.
+        /// </summary>
+        /// <param name="target">The <see cref="InProcessEventBus"/> to register the handlers in.</param>
+        /// <param name="asm">The assembly containing the types to register</param>
+        /// <param name="matching">Function that decides if the type should be registered as a handler</param>
+        /// <param name="handlerFactory">The function used to instantiate the given handler type</param>
+        public static void RegisterAllHandlersInAssemblyMatching(this InProcessEventBus target, Assembly asm, Func<Type, bool> matching, Func<Type, object> handlerFactory)
+        {
+            foreach (var type in asm.GetTypes().Where(x => ImplementsAtLeastOneIEventHandlerInterface(x) && matching(x)))
+            {
+                var handler = handlerFactory(type);
+
+                foreach (var handlerInterfaceType in type.GetInterfaces().Where(IsIEventHandlerInterface))
                 {
                     var eventDataType = handlerInterfaceType.GetGenericArguments().First();
                     RegisterHandler(handler, eventDataType, target);

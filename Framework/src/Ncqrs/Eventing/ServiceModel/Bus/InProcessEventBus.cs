@@ -103,6 +103,18 @@ namespace Ncqrs.Eventing.ServiceModel.Bus
                     var handlers = _handlerRegister[key];
                     result.AddRange(handlers);
                 }
+                else if (key.IsGenericTypeDefinition)
+                {
+                    if (dataType.IsGenericType)
+                    {
+                        dataType = dataType.GetGenericTypeDefinition();
+                        if (key.IsAssignableFrom(dataType))
+                        {
+                            var handlers = _handlerRegister[key];
+                            result.AddRange(handlers);
+                        }
+                    }
+                }
             }
 
             return result;
