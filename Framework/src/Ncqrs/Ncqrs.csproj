@@ -61,7 +61,7 @@
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
     <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
     <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
-    <CodeContractsRunCodeAnalysis>True</CodeContractsRunCodeAnalysis>
+    <CodeContractsRunCodeAnalysis>False</CodeContractsRunCodeAnalysis>
     <CodeContractsNonNullObligations>False</CodeContractsNonNullObligations>
     <CodeContractsBoundsObligations>False</CodeContractsBoundsObligations>
     <CodeContractsArithmeticObligations>False</CodeContractsArithmeticObligations>
@@ -82,6 +82,26 @@
     <CodeContractsCacheAnalysisResults>False</CodeContractsCacheAnalysisResults>
     <CodeContractsContainerAnalysis>False</CodeContractsContainerAnalysis>
     <DocumentationFile>..\..\..\lib\Release\Ncqrs\Ncqrs.XML</DocumentationFile>
+    <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
+    <CodeContractsEnumObligations>True</CodeContractsEnumObligations>
+    <CodeContractsAssertsToContractsCheckBox>True</CodeContractsAssertsToContractsCheckBox>
+    <CodeContractsRedundantTests>True</CodeContractsRedundantTests>
+    <CodeContractsMissingPublicRequiresAsWarnings>True</CodeContractsMissingPublicRequiresAsWarnings>
+    <CodeContractsMissingPublicEnsuresAsWarnings>False</CodeContractsMissingPublicEnsuresAsWarnings>
+    <CodeContractsInferRequires>True</CodeContractsInferRequires>
+    <CodeContractsInferEnsures>False</CodeContractsInferEnsures>
+    <CodeContractsInferObjectInvariants>False</CodeContractsInferObjectInvariants>
+    <CodeContractsSuggestAssumptions>False</CodeContractsSuggestAssumptions>
+    <CodeContractsSuggestAssumptionsForCallees>False</CodeContractsSuggestAssumptionsForCallees>
+    <CodeContractsSuggestRequires>False</CodeContractsSuggestRequires>
+    <CodeContractsNecessaryEnsures>True</CodeContractsNecessaryEnsures>
+    <CodeContractsSuggestObjectInvariants>False</CodeContractsSuggestObjectInvariants>
+    <CodeContractsSuggestReadonly>True</CodeContractsSuggestReadonly>
+    <CodeContractsSQLServerOption />
+    <CodeContractsSkipAnalysisIfCannotConnectToCache>False</CodeContractsSkipAnalysisIfCannotConnectToCache>
+    <CodeContractsFailBuildOnWarnings>False</CodeContractsFailBuildOnWarnings>
+    <CodeContractsBeingOptimisticOnExternal>True</CodeContractsBeingOptimisticOnExternal>
+    <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
@@ -130,6 +150,7 @@
     <Compile Include="Eventing\CommittedEventStream.cs" />
     <Compile Include="Eventing\EventSourceInformation.cs" />
     <Compile Include="Eventing\ServiceModel\Bus\IPublishableEvent.cs" />
+    <Compile Include="Eventing\ServiceModel\Bus\OpenGenericsBasedEventHandlersExtensions.cs" />
     <Compile Include="Eventing\ServiceModel\Bus\PublishedEvent.cs" />
     <Compile Include="Eventing\Sourcing\EntityThresholdedDomainEventHandlerWrapper.cs" />
     <Compile Include="Eventing\Sourcing\EventAppliedEventArgs.cs" />
@@ -137,6 +158,7 @@
     <Compile Include="Eventing\Sourcing\EntitySourcedEventBase.cs" />
     <Compile Include="Domain\Storage\AggregateSupportsSnapshotValidator.cs" />
     <Compile Include="Domain\Storage\IAggregateSupportsSnapshotValidator.cs" />
+    <Compile Include="Eventing\Sourcing\Mapping\MatchedMethods.cs" />
     <Compile Include="Eventing\Sourcing\Snapshotting\ISnapshottingPolicy.cs" />
     <Compile Include="Eventing\Sourcing\Snapshotting\NoSnapshottingPolicy.cs" />
     <Compile Include="Eventing\Sourcing\Snapshotting\SimpleSnapshottingPolicy.cs" />

@@ -67,14 +67,27 @@ namespace Ncqrs.Eventing.ServiceModel.Bus
             }
         }
 
+        private static Dictionary<Type, Func<IPublishableEvent, PublishedEvent>> handlerCache = new Dictionary<Type, Func<IPublishableEvent, PublishedEvent>>();
+
         private static void PublishToHandlers(IPublishableEvent eventMessage, Type eventMessageType, IEnumerable<Action<PublishedEvent>> handlers)
         {
             Contract.Requires<ArgumentNullException>(handlers != null);
 
             Log.DebugFormat("Found {0} handlers for event {1}.", handlers.Count(), eventMessageType.FullName);
 
-            var publishedEventClosedType = typeof (PublishedEvent<>).MakeGenericType(eventMessage.Payload.GetType());
-            var publishedEvent = (PublishedEvent)Activator.CreateInstance(publishedEventClosedType, eventMessage);
+            var key = eventMessage.Payload.GetType();
+
+            lock (handlerCache)
+            {
+                if (!handlerCache.ContainsKey(key))
+                {
+                    var tempKey = key;
+                    var publishedEventClosedType = typeof(PublishedEvent<>).MakeGenericType(tempKey);
+                    handlerCache.Add(key, em => (PublishedEvent)Activator.CreateInstance(publishedEventClosedType, em));
+                }
+            }
+
+            var publishedEvent = handlerCache[key](eventMessage);
 
             foreach (var handler in handlers)
             {

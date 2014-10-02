@@ -16,7 +16,7 @@ namespace Ncqrs.Domain
         protected EntityMappedByConvention(TAggregateRoot parent, Guid entityId)
             : base(parent, entityId)
         {
-            var mapping = new ConventionBasedEventHandlerMappingStrategy();
+            var mapping = NcqrsEnvironment.Get<ConventionBasedEventHandlerMappingStrategy>();
             var handlers = mapping.GetEventHandlers(this);
 
             foreach(var directHandler in handlers)

@@ -11,6 +11,7 @@ using Ncqrs.Eventing.Sourcing.Snapshotting;
 using Ncqrs.Eventing.Storage;
 using Ncqrs.Domain.Storage;
 using Newtonsoft.Json.Serialization;
+using Ncqrs.Eventing.Sourcing.Mapping;
 
 namespace Ncqrs
 {
@@ -46,6 +47,7 @@ namespace Ncqrs
             SetDefault<IAggregateSupportsSnapshotValidator>(new AggregateSupportsSnapshotValidator());
             SetDefault<IAggregateSnapshotter>(new DefaultAggregateSnapshotter(Get<IAggregateRootCreationStrategy>(), Get<IAggregateSupportsSnapshotValidator>()));
             SetDefault<IContractResolver>(new DefaultContractResolver(true));
+            SetDefault<ConventionBasedEventHandlerMappingStrategy>(new ConventionBasedEventHandlerMappingStrategy());
         }
 
         /// <summary>

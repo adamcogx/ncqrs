@@ -13,6 +13,12 @@ namespace Ncqrs.Messaging.Tests
     [TestFixture]
     public class ScenarioTest
     {
+        [TestFixtureSetUp]
+        public void Setup()
+        {
+            NcqrsEnvironment.Deconfigure();
+        }
+
         [Test]
         public void New_cargo_handling_event_is_registrered()
         {

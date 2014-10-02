@@ -8,7 +8,8 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping.Attributes
     public class AttributeBasedCommandMapper : ICommandMapper
     {
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private readonly Dictionary<Type, object> _handlers = new Dictionary<Type, object>();
+        //private readonly Dictionary<Type, object> _handlers = new Dictionary<Type, object>();
+        private readonly Dictionary<Type, Action<object, ICommand, IMappedCommandExecutor>> _newHandlers = new Dictionary<Type, Action<object, ICommand, IMappedCommandExecutor>>();
 
         public AttributeBasedCommandMapper()
         {
@@ -20,7 +21,8 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping.Attributes
 
         public void RegisterAttributeHandler<T>(IMappingAttributeHandler<T> handler)
         {
-            _handlers[typeof(T)] = handler;
+            //_handlers[typeof(T)] = handler;
+            _newHandlers[typeof(T)] = (attr, cmd, executor) => handler.Map((T)attr, cmd, executor);
         }
 
         /// <summary>
@@ -42,21 +44,21 @@ namespace Ncqrs.Commanding.CommandExecution.Mapping.Attributes
 
         private bool IsAttributeHandlerRegistered(Type type)
         {
-            return type.GetCustomAttributes(false).Any(x => _handlers.ContainsKey(x.GetType()));
+            return type.GetCustomAttributes(false).Any(x => _newHandlers.ContainsKey(x.GetType()));
         }
 
         public void Map(ICommand command, IMappedCommandExecutor executor)
         {
             var commandType = command.GetType();
-            IEnumerable<dynamic> attributes = commandType.GetCustomAttributes(false);
+            var attributes = commandType.GetCustomAttributes(false);
 
-            dynamic attributeHandler;
+            Action<object, ICommand, IMappedCommandExecutor> attributeHandler;
 
-            foreach (dynamic attribute in attributes)
+            foreach (var attribute in attributes)
             {
-                if (_handlers.TryGetValue(attribute.GetType(), out attributeHandler))
+                if (_newHandlers.TryGetValue(attribute.GetType(), out attributeHandler))
                 {
-                    attributeHandler.Map(attribute, command, executor);
+                    attributeHandler(attribute, command, executor);
                     return;
                 }
             }

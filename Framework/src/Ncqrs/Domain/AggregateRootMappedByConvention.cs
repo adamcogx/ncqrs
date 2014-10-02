@@ -40,12 +40,12 @@ namespace Ncqrs.Domain
         /// Initializes a new instance of the <see cref="AggregateRootMappedByConvention"/> class.
         /// </summary>
         protected AggregateRootMappedByConvention()
-            : base(new ConventionBasedEventHandlerMappingStrategy())
+            : base(NcqrsEnvironment.Get<ConventionBasedEventHandlerMappingStrategy>())
         {
         }
 
         protected AggregateRootMappedByConvention(Guid id)
-            : base(id, new ConventionBasedEventHandlerMappingStrategy())
+            : base(id, NcqrsEnvironment.Get<ConventionBasedEventHandlerMappingStrategy>())
         {
         }
     }
