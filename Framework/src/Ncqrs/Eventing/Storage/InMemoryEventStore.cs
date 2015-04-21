@@ -47,7 +47,10 @@ namespace Ncqrs.Eventing.Storage
                 if (!_events.TryGetValue(eventStream.SourceId, out events))
                 {
                     events = new Queue<CommittedEvent>();
-                    _events.Add(eventStream.SourceId, events);
+                    lock (_events)
+                    {
+                        _events.Add(eventStream.SourceId, events);
+                    }
                 }
 
                 foreach (var evnt in eventStream)

@@ -39,7 +39,8 @@ namespace Ncqrs.Eventing.Sourcing.Mapping
         public Type EventBaseType
         {
             get { return _eventBaseType; }
-            set {
+            set
+            {
                 lock (typeMatchedMethods)
                 {
                     _eventBaseType = value;
@@ -67,30 +68,33 @@ namespace Ncqrs.Eventing.Sourcing.Mapping
             var targetType = target.GetType();
             var handlers = new List<ISourcedEventHandler>();
 
-            if (!typeMatchedMethods.ContainsKey(targetType))
+            lock (typeMatchedMethods)
             {
+                if (!typeMatchedMethods.ContainsKey(targetType))
+                {
 
-                Logger.DebugFormat("Trying to get all event handlers based by convention for {0}.", targetType);
+                    Logger.DebugFormat("Trying to get all event handlers based by convention for {0}.", targetType);
 
-                var methodsToMatch = targetType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    var methodsToMatch = targetType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-                var matchedMethods = (from method in methodsToMatch
-                                     let parameters = method.GetParameters()
-                                     let noEventHandlerAttributes =
-                                         method.GetCustomAttributes(typeof(NoEventHandlerAttribute), true)
-                                     where
-                                         // Get only methods where the name matches.
-                                        Regex.IsMatch(method.Name, MethodNameRegexPattern, RegexOptions.CultureInvariant) &&
-                                         // Get only methods that have 1 parameter.
-                                        parameters.Length == 1 &&
-                                         // Get only methods where the first parameter is an event.
-                                        EventBaseType.IsAssignableFrom(parameters[0].ParameterType) &&
-                                         // Get only methods that are not marked with the no event handler attribute.
-                                        noEventHandlerAttributes.Length == 0
-                                     select
-                                        new MatchedMethods { MethodInfo = method, FirstParameter = method.GetParameters()[0] }).ToList();
+                    var matchedMethods = (from method in methodsToMatch
+                                          let parameters = method.GetParameters()
+                                          let noEventHandlerAttributes =
+                                              method.GetCustomAttributes(typeof(NoEventHandlerAttribute), true)
+                                          where
+                                              // Get only methods where the name matches.
+                                             Regex.IsMatch(method.Name, MethodNameRegexPattern, RegexOptions.CultureInvariant) &&
+                                              // Get only methods that have 1 parameter.
+                                             parameters.Length == 1 &&
+                                              // Get only methods where the first parameter is an event.
+                                             EventBaseType.IsAssignableFrom(parameters[0].ParameterType) &&
+                                              // Get only methods that are not marked with the no event handler attribute.
+                                             noEventHandlerAttributes.Length == 0
+                                          select
+                                             new MatchedMethods { MethodInfo = method, FirstParameter = method.GetParameters()[0] }).ToList();
 
-                typeMatchedMethods.Add(targetType, matchedMethods);
+                    typeMatchedMethods.Add(targetType, matchedMethods);
+                }
             }
 
             foreach (var method in typeMatchedMethods[targetType])
@@ -106,21 +110,17 @@ namespace Ncqrs.Eventing.Sourcing.Mapping
                     {
                         var key = Tuple.Create((MethodBase)methodCopy, e.GetType());
                         var tempCopy = methodCopy;
-                        if (cachedEventHandlerMethods.ContainsKey(key))
+                        lock (cachedEventHandlerMethods)
                         {
-                            tempCopy = cachedEventHandlerMethods[key];
-                        }
-                        else
-                        {
-                            var arguments = tempCopy.GetGenericArguments();
-                            var eventType = e.GetType();
-                            if (arguments.Length == 1)
+                            if (cachedEventHandlerMethods.ContainsKey(key))
                             {
-                                if (arguments[0].BaseType.IsAssignableFrom(eventType))
-                                {
-                                    tempCopy = tempCopy.MakeGenericMethod(eventType);
-                                }
-                                else
+                                tempCopy = cachedEventHandlerMethods[key];
+                            }
+                            else
+                            {
+                                var arguments = tempCopy.GetGenericArguments();
+                                var eventType = e.GetType();
+                                if (arguments.Length == 1)
                                 {
                                     var eventArgs = eventType.GetGenericArguments();
                                     foreach (var eventArg in eventArgs)
@@ -132,8 +132,8 @@ namespace Ncqrs.Eventing.Sourcing.Mapping
                                         }
                                     }
                                 }
+                                cachedEventHandlerMethods[key] = tempCopy;
                             }
-                            cachedEventHandlerMethods[key] = tempCopy;
                         }
 
                         tempCopy.Invoke(target, new[] { e });

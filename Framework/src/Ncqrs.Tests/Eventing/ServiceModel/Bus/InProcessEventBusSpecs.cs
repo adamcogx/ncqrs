@@ -169,5 +169,51 @@ namespace Ncqrs.Tests.Eventing.ServiceModel.Bus
             specificEventHandler2.AssertWasCalled(h => h.Handle(null), options => options.IgnoreArguments().Repeat.Times(2));
             specificEventHandler3.AssertWasCalled(h => h.Handle(null), options => options.IgnoreArguments().Repeat.Times(2));
         }
+
+        [Test]
+        public void it_should_register_all_concrete_and_open_handlers()
+        {
+            var bus = new InProcessEventBus();
+            bus.RegisterAllHandlersInAssemblyMatching(this.GetType().Assembly, x => x.Namespace.Equals("Ncqrs.Tests.Eventing.ServiceModel.Bus"));
+            bus.RegisterAllOpenGenericHandlersInAssembly(this.GetType().Assembly, type => Activator.CreateInstance(type));
+            //bus.RegisterOpenGenericEventsHandler(typeof(OpenEvent<>), typeof(OpenEventHandler<>));
+            bus.Publish(CreateAEvent(new OpenEvent<string>()));
+            bus.Publish(CreateAEvent(new StandardEvent()));
+            Assert.AreEqual(1, openCount);
+            Assert.AreEqual(1, standardCount);
+        }
+
+        private static IPublishableEvent CreateAEvent(object evnt)
+        {
+            return new UncommittedEvent(Guid.NewGuid(), Guid.NewGuid(), 0, 0, DateTime.UtcNow, evnt, new Version(1, 0));
+        }
+
+        private static int openCount = 0;
+        private static int standardCount = 0;
+
+        public class StandardEvent 
+        {
+        }
+
+
+        public class StandardEventHandler : IEventHandler<StandardEvent>
+        {
+            public void Handle(IPublishedEvent<StandardEvent> evnt)
+            {
+                standardCount++;
+            }
+        }
+
+        public class OpenEvent<T>
+        {
+        }
+
+        public class OpenEventHandler<T> : IEventHandler<OpenEvent<T>>
+        {
+            public void Handle(IPublishedEvent<OpenEvent<T>> evnt)
+            {
+                openCount++;
+            }
+        }
     }
 }

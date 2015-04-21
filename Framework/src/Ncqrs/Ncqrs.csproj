@@ -105,8 +105,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
-      <HintPath>..\..\..\lib\ThirdParty\log4net\log4net.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
@@ -286,6 +285,9 @@
     <EmbeddedResource Include="Eventing\Storage\SQL\ConstraintCreationScript.sql">
       <CustomToolNamespace>Ncqrs.Eventing.Storage.SQL.SimpleMicrosoftSqlServerEventStore</CustomToolNamespace>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

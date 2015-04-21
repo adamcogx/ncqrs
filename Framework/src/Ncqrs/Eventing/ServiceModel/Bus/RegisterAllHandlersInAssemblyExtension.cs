@@ -28,7 +28,7 @@ namespace Ncqrs.Eventing.ServiceModel.Bus
         /// <param name="handlerFactory">The function used to instantiate the given handler type</param>
         public static void RegisterAllHandlersInAssembly(this InProcessEventBus target, Assembly asm, Func<Type, object> handlerFactory)
         {
-            foreach(var type in asm.GetTypes().Where(ImplementsAtLeastOneIEventHandlerInterface))
+            foreach (var type in asm.GetTypes().Where(x => ImplementsAtLeastOneIEventHandlerInterface(x) && IsConcrete(x)))
             {
                 var handler = handlerFactory(type);
 
@@ -61,7 +61,7 @@ namespace Ncqrs.Eventing.ServiceModel.Bus
         /// <param name="handlerFactory">The function used to instantiate the given handler type</param>
         public static void RegisterAllHandlersInAssemblyMatching(this InProcessEventBus target, Assembly asm, Func<Type, bool> matching, Func<Type, object> handlerFactory)
         {
-            foreach (var type in asm.GetTypes().Where(x => ImplementsAtLeastOneIEventHandlerInterface(x) && matching(x)))
+            foreach (var type in asm.GetTypes().Where(x => matching(x) && ImplementsAtLeastOneIEventHandlerInterface(x) && IsConcrete(x)))
             {
                 var handler = handlerFactory(type);
 
@@ -71,6 +71,11 @@ namespace Ncqrs.Eventing.ServiceModel.Bus
                     RegisterHandler(handler, eventDataType, target);
                 }
             }
+        }
+
+        private static bool IsConcrete(Type x)
+        {
+            return !x.ContainsGenericParameters;
         }
 
         private static object CreateInstance(Type type)
@@ -100,9 +105,15 @@ namespace Ncqrs.Eventing.ServiceModel.Bus
 
         private static bool IsIEventHandlerInterface(Type type)
         {
-            return type.IsInterface &&
+            if(type.IsInterface &&
                    type.IsGenericType &&
-                   type.GetGenericTypeDefinition() == typeof (IEventHandler<>);
+                   type.GetGenericTypeDefinition() == typeof(IEventHandler<>))
+            {
+                var parm = type.GetGenericArguments()[0];
+                return !parm.IsGenericType;
+            }
+
+            return false;
         }
     }
 }
