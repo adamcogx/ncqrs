@@ -122,13 +122,20 @@ namespace Ncqrs.Eventing.Sourcing.Mapping
                                 var eventType = e.GetType();
                                 if (arguments.Length == 1)
                                 {
-                                    var eventArgs = eventType.GetGenericArguments();
-                                    foreach (var eventArg in eventArgs)
+                                    if (arguments[0].BaseType.IsAssignableFrom(eventType))
                                     {
-                                        if (arguments[0].BaseType.IsAssignableFrom(eventArg))
+                                        tempCopy = tempCopy.MakeGenericMethod(eventType);
+                                    }
+                                    else
+                                    {
+                                        var eventArgs = eventType.GetGenericArguments();
+                                        foreach (var eventArg in eventArgs)
                                         {
-                                            tempCopy = tempCopy.MakeGenericMethod(eventArg);
-                                            break;
+                                            if (arguments[0].BaseType.IsAssignableFrom(eventArg))
+                                            {
+                                                tempCopy = tempCopy.MakeGenericMethod(eventArg);
+                                                break;
+                                            }
                                         }
                                     }
                                 }
