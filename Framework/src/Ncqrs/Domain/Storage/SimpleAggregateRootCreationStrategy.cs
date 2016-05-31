@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Ncqrs.Domain.Storage
 {
-    public class SimpleAggregateRootCreationStrategy 
+    public class SimpleAggregateRootCreationStrategy
         : AggregateRootCreationStrategy
     {
 
@@ -20,8 +20,7 @@ namespace Ncqrs.Domain.Storage
             var ctor = aggregateRootType.GetConstructor(flags, null, Type.EmptyTypes, null);
 
             // If there was no ctor found, throw exception.
-            if (ctor == null)
-            {
+            if (ctor == null) {
                 var message = String.Format("No constructor found on aggregate root type {0} that accepts " +
                                             "no parameters.", aggregateRootType.AssemblyQualifiedName);
                 throw new AggregateRootCreationException(message);
@@ -39,10 +38,11 @@ namespace Ncqrs.Domain.Storage
         {
             var key = Tuple.Create(aggregateRootType, command.GetType());
 
-            if (!cachedConstructors.ContainsKey(key))
-            {
-                var match = GetMatchingConstructor(aggregateRootType, command.GetType());
-                cachedConstructors.Add(key, match);
+            lock (cachedConstructors) {
+                if (!cachedConstructors.ContainsKey(key)) {
+                    var match = GetMatchingConstructor(aggregateRootType, command.GetType());
+                    cachedConstructors.Add(key, match);
+                }
             }
 
             var cached = cachedConstructors[key];
@@ -74,8 +74,7 @@ namespace Ncqrs.Domain.Storage
 
             var attr = (ParameterAttribute)prop.GetCustomAttributes(typeof(ParameterAttribute), false).FirstOrDefault();
 
-            if (attr != null)
-            {
+            if (attr != null) {
                 ordinal = attr.Ordinal;
                 name = attr.Name ?? name;
             }

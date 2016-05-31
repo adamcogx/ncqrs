@@ -46,7 +46,7 @@ namespace Ncqrs
             SetDefault<IAggregateRootCreationStrategy>(new SimpleAggregateRootCreationStrategy());
             SetDefault<IAggregateSupportsSnapshotValidator>(new AggregateSupportsSnapshotValidator());
             SetDefault<IAggregateSnapshotter>(new DefaultAggregateSnapshotter(Get<IAggregateRootCreationStrategy>(), Get<IAggregateSupportsSnapshotValidator>()));
-            SetDefault<IContractResolver>(new DefaultContractResolver(true));
+            SetDefault<IContractResolver>(new DefaultContractResolver());
             SetDefault<ConventionBasedEventHandlerMappingStrategy>(new ConventionBasedEventHandlerMappingStrategy());
         }
 
