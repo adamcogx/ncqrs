@@ -4,11 +4,12 @@ using Ncqrs.Commanding;
 using Ncqrs.Commanding.ServiceModel;
 using Ncqrs.Eventing;
 using Ncqrs.Eventing.Storage;
+using Xunit;
 
 namespace Ncqrs.Spec
 {
-
-    public abstract class BigBangTestFixture<TCommand>
+	[Collection("BigBang")]
+	public abstract class BigBangTestFixture<TCommand>
         : DomainTestFixture<TCommand>
         where TCommand : ICommand
     {

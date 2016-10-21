@@ -1,4 +1,5 @@
-﻿using Events;
+﻿using System;
+using Events;
 using Ncqrs.Spec;
 
 namespace Tests
@@ -10,7 +11,8 @@ namespace Tests
         {
             return new NoteTextChanged()
                        {
-                           NewText = "New text goes here."
+                           NewText = "New text goes here.",
+						   When = DateTime.Now
                        };
         }
     }

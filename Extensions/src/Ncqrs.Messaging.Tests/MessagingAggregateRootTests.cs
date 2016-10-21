@@ -1,14 +1,13 @@
 using System;
 using System.Linq;
 using Ncqrs.Domain;
-using NUnit.Framework;
+using Xunit;
 
 namespace Ncqrs.Messaging.Tests
 {
-    [TestFixture]
     public class MessagingAggregateRootTests
     {
-        [Test]
+        [Fact]
         public void After_sending_message_event_is_applied()
         {
             using (NcqrsEnvironment.Get<IUnitOfWorkFactory>().CreateUnitOfWork(Guid.NewGuid()))
@@ -21,11 +20,11 @@ namespace Ncqrs.Messaging.Tests
                                             Payload = new TestMessage()
                                         });
 
-                Assert.AreEqual(1, eventCount);
+                Assert.Equal(1, eventCount);
             }
         }
 
-        [Test]
+        [Fact]
         public void If_same_message_is_received_twice_only_the_first_one_is_processed()
         {
             using (NcqrsEnvironment.Get<IUnitOfWorkFactory>().CreateUnitOfWork(Guid.NewGuid()))
@@ -40,7 +39,7 @@ namespace Ncqrs.Messaging.Tests
                 root.ProcessMessage(testMessage);
                 root.ProcessMessage(testMessage);
 
-                Assert.AreEqual(1, eventCount);
+                Assert.Equal(1, eventCount);
             }
         }
 

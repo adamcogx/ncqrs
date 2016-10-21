@@ -1,4 +1,5 @@
 ﻿using System;
+using Ncqrs.Commanding;
 using Ncqrs.Domain;
 using Ncqrs.Domain.Storage;
 
@@ -40,5 +41,14 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
             return _factory.Create(aggregateRootType);
         }
 
+        public AggregateRoot CreateAggregateRootFromCommand(Type aggregateRootType, ICommand command)
+        {
+            throw new NotImplementedException();
+        }
+
+        public T CreateAggregateRootFromCommand<T>(ICommand command) where T : AggregateRoot
+        {
+            throw new NotImplementedException();
+        }
     }
 }

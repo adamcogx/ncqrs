@@ -8,15 +8,15 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.ComponentModel;
+using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-using System.Data.EntityClient;
-using System.ComponentModel;
-using System.Xml.Serialization;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 [assembly: EdmSchemaAttribute()]
-
 namespace ReadModel
 {
     #region Contexts
@@ -98,6 +98,7 @@ namespace ReadModel
         private ObjectSet<TotalsPerDayItem> _TotalsPerDayItemSet;
 
         #endregion
+
         #region AddTo Methods
     
         /// <summary>
@@ -117,11 +118,11 @@ namespace ReadModel
         }
 
         #endregion
+
     }
-    
 
     #endregion
-    
+
     #region Entities
     
     /// <summary>
@@ -146,7 +147,8 @@ namespace ReadModel
         }
 
         #endregion
-        #region Primitive Properties
+
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -165,7 +167,7 @@ namespace ReadModel
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -190,7 +192,7 @@ namespace ReadModel
             {
                 OnTextChanging(value);
                 ReportPropertyChanging("Text");
-                _Text = StructuralObject.SetValidValue(value, true);
+                _Text = StructuralObject.SetValidValue(value, true, "Text");
                 ReportPropertyChanged("Text");
                 OnTextChanged();
             }
@@ -214,7 +216,7 @@ namespace ReadModel
             {
                 OnCreationDateChanging(value);
                 ReportPropertyChanging("CreationDate");
-                _CreationDate = StructuralObject.SetValidValue(value);
+                _CreationDate = StructuralObject.SetValidValue(value, "CreationDate");
                 ReportPropertyChanged("CreationDate");
                 OnCreationDateChanged();
             }
@@ -224,7 +226,7 @@ namespace ReadModel
         partial void OnCreationDateChanged();
 
         #endregion
-    
+
     }
     
     /// <summary>
@@ -255,7 +257,8 @@ namespace ReadModel
         }
 
         #endregion
-        #region Primitive Properties
+
+        #region Simple Properties
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -274,7 +277,7 @@ namespace ReadModel
                 {
                     OnIdChanging(value);
                     ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
+                    _Id = StructuralObject.SetValidValue(value, "Id");
                     ReportPropertyChanged("Id");
                     OnIdChanged();
                 }
@@ -299,7 +302,7 @@ namespace ReadModel
             {
                 OnDateChanging(value);
                 ReportPropertyChanging("Date");
-                _Date = StructuralObject.SetValidValue(value);
+                _Date = StructuralObject.SetValidValue(value, "Date");
                 ReportPropertyChanged("Date");
                 OnDateChanged();
             }
@@ -323,7 +326,7 @@ namespace ReadModel
             {
                 OnNewCountChanging(value);
                 ReportPropertyChanging("NewCount");
-                _NewCount = StructuralObject.SetValidValue(value);
+                _NewCount = StructuralObject.SetValidValue(value, "NewCount");
                 ReportPropertyChanged("NewCount");
                 OnNewCountChanged();
             }
@@ -347,7 +350,7 @@ namespace ReadModel
             {
                 OnEditCountChanging(value);
                 ReportPropertyChanging("EditCount");
-                _EditCount = StructuralObject.SetValidValue(value);
+                _EditCount = StructuralObject.SetValidValue(value, "EditCount");
                 ReportPropertyChanged("EditCount");
                 OnEditCountChanged();
             }
@@ -357,9 +360,9 @@ namespace ReadModel
         partial void OnEditCountChanged();
 
         #endregion
-    
+
     }
 
     #endregion
-    
+
 }

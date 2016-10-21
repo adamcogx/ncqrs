@@ -3,7 +3,6 @@ using Ncqrs.Config;
 using Ncqrs.Eventing.ServiceModel.Bus;
 using Ncqrs.Commanding.CommandExecution.Mapping.Attributes;
 using Ncqrs.Spec;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +10,7 @@ using System.Text;
 using System.Threading;
 using Ncqrs.Eventing.Storage;
 using Ncqrs.Eventing.Storage.SQLite;
+using Xunit;
 
 namespace Ncqrs.Messaging.Tests
 {
@@ -62,7 +62,7 @@ namespace Ncqrs.Messaging.Tests
         public void it_should_not_throw()
         {
             var exception = CaughtException;
-            Assert.IsNull(exception);
+            Assert.Null(exception);
         }
     }
 

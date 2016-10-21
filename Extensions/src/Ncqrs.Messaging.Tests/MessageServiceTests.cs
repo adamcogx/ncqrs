@@ -2,13 +2,12 @@ using System;
 using Ncqrs.Domain;
 using Ncqrs.Eventing;
 using Ncqrs.Eventing.Storage;
-using NUnit.Framework;
 using Rhino.Mocks;
 using Ncqrs.Eventing.Sourcing;
+using Xunit;
 
 namespace Ncqrs.Messaging.Tests
 {
-    [TestFixture]
     public class MessageServiceTests
     {
         private MessageService _sut;
@@ -16,9 +15,10 @@ namespace Ncqrs.Messaging.Tests
         private IReceivingStrategy _receivingStrategy;
         private Guid _aggregateRootId;
 
-        [SetUp]
-        public void SetUp()
+        public MessageServiceTests()
         {
+            NcqrsEnvironment.Deconfigure();
+
             _aggregateRootId = Guid.NewGuid();
             _eventStore = MockRepository.GenerateMock<IEventStore>();
             NcqrsEnvironment.SetDefault(_eventStore);
@@ -27,7 +27,7 @@ namespace Ncqrs.Messaging.Tests
             _sut.UseReceivingStrategy(new ConditionalReceivingStrategy(x => true, _receivingStrategy));
         }
 
-        [Test]
+        [Fact]
         public void If_message_requires_receiver_existance_and_receiver_doesnt_exist_exception_is_thrown()
         {
             ExpectNotToFindExistingAggregate();
@@ -37,7 +37,7 @@ namespace Ncqrs.Messaging.Tests
 
 
 
-        [Test]
+        [Fact]
         public void If_message_requires_receiver_absence_and_receiver_exists_exception_is_thrown()
         {
             ExpectToFindExistingAggregate();
@@ -45,7 +45,7 @@ namespace Ncqrs.Messaging.Tests
             Assert.Throws<MessageProcessingRequirementsViolationException>(() => _sut.Process(new TestMessage()));
         }
 
-        [Test]
+        [Fact]
         public void If_receiver_doesnt_exist_new_one_is_created_before_processing_message()
         {
             ExpectNotToFindExistingAggregate();
@@ -53,7 +53,7 @@ namespace Ncqrs.Messaging.Tests
             _sut.Process(new TestMessage());
         }
 
-        [Test]
+        [Fact]
         public void If_receiver_exists_it_is_used_during_processing_of_a_message()
         {
             ExpectToFindExistingAggregate();
@@ -61,7 +61,7 @@ namespace Ncqrs.Messaging.Tests
             _sut.Process(new TestMessage());
         }
 
-        [Test]
+        [Fact]
         public void If_receiver_does_not_handle_message_type_exception_is_thrown()
         {
             ExpectToFindExistingInvalidAggregate();

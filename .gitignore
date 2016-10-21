@@ -38,6 +38,9 @@ release
 
 #dotCover
 *.dotCover
-packages/
-.vs/
-Ncqrs.*.nupkg
+
+#packages
+**/packages/*
+
+#Test Results
+**/TestResults/*

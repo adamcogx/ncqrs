@@ -1,7 +1,7 @@
 ﻿using System;
 using Ncqrs.Domain;
 using Ncqrs.Eventing.ServiceModel.Bus;
-using NUnit.Framework;
+using Xunit;
 using Ncqrs.Eventing.Sourcing;
 using System.Threading;
 using Ncqrs.Commanding.ServiceModel;
@@ -10,16 +10,14 @@ using Ncqrs.Commanding.CommandExecution.Mapping.Attributes;
 
 namespace Ncqrs.Messaging.Tests
 {
-    [TestFixture]
     public class ScenarioTest
     {
-        [TestFixtureSetUp]
-        public void Setup()
+        public ScenarioTest()
         {
             NcqrsEnvironment.Deconfigure();
         }
 
-        [Test]
+        [Fact]
         public void New_cargo_handling_event_is_registrered()
         {
             var cargoId = Guid.NewGuid();
@@ -95,12 +93,12 @@ namespace Ncqrs.Messaging.Tests
             //object message = sendingStrategy.DequeueMessage();
             //messageService.Process(message);
 
-            Thread.Sleep(1000); // The FakeSendingStrategy switches threads to process the message, so we need to wait for it to complete.
+            //Thread.Sleep(2000); // The FakeSendingStrategy switches threads to process the message, so we need to wait for it to complete.
 
             using (var uow = NcqrsEnvironment.Get<IUnitOfWorkFactory>().CreateUnitOfWork(Guid.NewGuid()))
             {
                 var cargo = (Cargo)uow.GetById(typeof(Cargo),cargoId, null);
-                Assert.AreEqual(1, cargo.HandlingEventCount);
+                Assert.Equal(1, cargo.HandlingEventCount);
             }
         }
 
