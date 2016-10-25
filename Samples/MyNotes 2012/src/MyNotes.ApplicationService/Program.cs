@@ -25,16 +25,22 @@ namespace MyNotes.ApplicationService
             Console.WindowHeight = 30;
             Console.WindowWidth = 150;
 
+            // Setup the bus that will actually run the EventHandlers.
             var bus = new InProcessEventBus(true);
-            var eventStore = Program.GetBrowsableEventStore();
-            var buffer = new InMemoryBufferedBrowsableElementStore(eventStore, 20 /*magic number found in ThresholdFetchPolicy*/);
-
             bus.RegisterAllHandlersInAssembly(typeof(MyNotes.Denormalizers.NoteDenormalizer).Assembly);
+
+            // This is what will store the events to the DB as poor man's message queue
+            var eventStore = GetBrowsableEventStore();
+            var buffer = new InMemoryBufferedBrowsableElementStore(eventStore, 20 /*magic number found in ThresholdFetchPolicy*/);
             BootStrapper.BootUp(buffer);
 
+            // Pipelines are what will process the persisted events onto the final bus, which
+            // will result in the EventHandlers running.
             var pipeline = Pipeline.Create("Default", new EventBusProcessor(bus), buffer);
             pipeline.Start();
 
+            // The command Service Host ends up using the pipelined eventStore
+            // which is the default instance for the bus in the environment (set in the BoostStrapper)
             var commandServiceHost = new ServiceHost(typeof(CommandWebService));
             commandServiceHost.Open();
 

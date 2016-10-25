@@ -130,6 +130,7 @@
     <Compile Include="Eventing\CommittedEvent.cs" />
     <Compile Include="Eventing\CommittedEventStream.cs" />
     <Compile Include="Eventing\EventSourceInformation.cs" />
+    <Compile Include="Eventing\IKnownEventsEnumerator.cs" />
     <Compile Include="Eventing\ServiceModel\Bus\IPublishableEvent.cs" />
     <Compile Include="Eventing\ServiceModel\Bus\OpenGenericsBasedEventHandlersExtensions.cs" />
     <Compile Include="Eventing\ServiceModel\Bus\PublishedEvent.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="Eventing\Storage\NoDB\StoredEventExtensions.cs" />
     <Compile Include="Eventing\Sourcing\UndefinedValues.cs" />
     <Compile Include="Eventing\Storage\NullSnapshotStore.cs" />
+    <Compile Include="Eventing\Storage\SQL\EventSource.cs" />
     <Compile Include="Eventing\UncommittedEvent.cs" />
     <Compile Include="Eventing\UncommittedEventStream.cs" />
     <Compile Include="GuidCombGenerator.cs" />
