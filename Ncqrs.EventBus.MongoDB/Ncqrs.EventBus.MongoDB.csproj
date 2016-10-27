@@ -62,7 +62,7 @@
       <Project>{caf2e548-87c8-422b-a62c-8c3ed83ff3c3}</Project>
       <Name>Ncqrs.EventBus</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Framework\src\Ncqrs.Eventing.Storage.MongoDB\Ncqrs.Eventing.Storage.MongoDB.csproj">
+    <ProjectReference Include="..\Extensions\src\Ncqrs.Eventing.Storage.MongoDB\Ncqrs.Eventing.Storage.MongoDB.csproj">
       <Project>{8a6d158f-019a-414e-8e94-8dd9e46d0ff0}</Project>
       <Name>Ncqrs.Eventing.Storage.MongoDB</Name>
     </ProjectReference>

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Ncqrs.Domain.Storage.MongoDB")]
+[assembly: AssemblyTitle("Ncqrs.Eventing.Storage.MongoDB")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("Ncqrs.Domain.Storage.MongoDB")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2010")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Ncqrs.Eventing.Storage.MongoDB")]
+[assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("ac4ad540-3618-45b6-aebf-4dd3e5ad19be")]
+[assembly: Guid("8a6d158f-019a-414e-8e94-8dd9e46d0ff0")]
 
 // Version information for an assembly consists of the following four values:
 //
