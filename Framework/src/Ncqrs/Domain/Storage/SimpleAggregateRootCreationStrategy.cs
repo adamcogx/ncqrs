@@ -35,22 +35,29 @@ namespace Ncqrs.Domain.Storage
         private static Dictionary<Tuple<Type, Type>, Tuple<ConstructorInfo, PropertyInfo[]>> cachedConstructors = new Dictionary<Tuple<Type, Type>, Tuple<ConstructorInfo, PropertyInfo[]>>();
 
         protected override AggregateRoot CreateAggregateRootFromTypeAndCommand(Type aggregateRootType, Commanding.ICommand command)
-        {
-            var key = Tuple.Create(aggregateRootType, command.GetType());
+		{
+			var cached = GetCachedCommandConstructorMapping(aggregateRootType, command);
 
-            lock (cachedConstructors) {
-                if (!cachedConstructors.ContainsKey(key)) {
-                    var match = GetMatchingConstructor(aggregateRootType, command.GetType());
-                    cachedConstructors.Add(key, match);
-                }
-            }
+			var parameter = cached.Item2.Select(p => p.GetValue(command, null));
+			return (AggregateRoot)cached.Item1.Invoke(parameter.ToArray());
+		}
 
-            var cached = cachedConstructors[key];
-            var parameter = cached.Item2.Select(p => p.GetValue(command, null));
-            return (AggregateRoot)cached.Item1.Invoke(parameter.ToArray());
-        }
+		protected Tuple<ConstructorInfo, PropertyInfo[]> GetCachedCommandConstructorMapping(Type aggregateRootType, Commanding.ICommand command)
+		{
+			var key = Tuple.Create(aggregateRootType, command.GetType());
 
-        protected Tuple<ConstructorInfo, PropertyInfo[]> GetMatchingConstructor(Type aggType, Type commandType)
+			lock (cachedConstructors) {
+				if (!cachedConstructors.ContainsKey(key)) {
+					var match = GetMatchingConstructor(aggregateRootType, command.GetType());
+					cachedConstructors.Add(key, match);
+				}
+			}
+
+			var cached = cachedConstructors[key];
+			return cached;
+		}
+
+		protected Tuple<ConstructorInfo, PropertyInfo[]> GetMatchingConstructor(Type aggType, Type commandType)
         {
             var strategy = new AttributePropertyMappingStrategy();
             var sources = strategy.GetMappedProperties(commandType);

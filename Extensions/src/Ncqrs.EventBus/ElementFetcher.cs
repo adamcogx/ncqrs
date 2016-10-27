@@ -62,7 +62,7 @@ namespace Ncqrs.EventBus
                         OnElementFetched(new ElementFetchedEventArgs(element));
                     }
                 }
-                catch
+                catch(Exception e)
                 {
                 }
                 finally

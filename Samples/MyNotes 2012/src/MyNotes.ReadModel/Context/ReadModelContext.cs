@@ -25,7 +25,7 @@ namespace MyNotes.ReadModel.Context
             modelBuilder.Configurations.Add(new Types.Mapping.NoteMapping(this.readModelSchema));
             modelBuilder.Configurations.Add(new Types.Mapping.DailyStatisticsMapping(this.readModelSchema));
 
-            Database.SetInitializer<ReadModelContext>(null);
+            Database.SetInitializer<ReadModelContext>(new System.Data.Entity.CreateDatabaseIfNotExists<ReadModelContext>());
         }
     }
 }

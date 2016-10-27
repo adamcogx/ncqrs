@@ -11,7 +11,7 @@ namespace Ncqrs.Domain.Storage
     public abstract class AggregateRootCreationStrategy 
         : IAggregateRootCreationStrategy
     {
-        public AggregateRoot CreateAggregateRoot(Type aggregateRootType)
+        public virtual AggregateRoot CreateAggregateRoot(Type aggregateRootType)
         {
             if (!aggregateRootType.IsSubclassOf(typeof(AggregateRoot)))
             {
@@ -30,7 +30,7 @@ namespace Ncqrs.Domain.Storage
             return (T)CreateAggregateRoot(typeof(T));
         }
 
-        public AggregateRoot CreateAggregateRootFromCommand(Type aggregateRootType, Commanding.ICommand command)
+        public virtual AggregateRoot CreateAggregateRootFromCommand(Type aggregateRootType, Commanding.ICommand command)
         {
             if (!aggregateRootType.IsSubclassOf(typeof(AggregateRoot)))
             {

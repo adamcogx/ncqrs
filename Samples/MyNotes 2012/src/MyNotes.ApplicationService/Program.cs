@@ -14,6 +14,9 @@ using Ncqrs.Eventing.Sourcing;
 using Ncqrs.Eventing.Storage;
 using Ncqrs.Eventing.Storage.SQL;
 
+using Ncqrs.Eventing.Storage.MongoDB;
+using System.Reflection;
+
 namespace MyNotes.ApplicationService
 {
     static class Program
@@ -29,8 +32,8 @@ namespace MyNotes.ApplicationService
             var bus = new InProcessEventBus(true);
             bus.RegisterAllHandlersInAssembly(typeof(MyNotes.Denormalizers.NoteDenormalizer).Assembly);
 
-            // This is what will store the events to the DB as poor man's message queue
-            var eventStore = GetBrowsableEventStore();
+			// This is what will store the events to the DB as poor man's message queue
+			var eventStore = GetBrowsableEventStore();
             var buffer = new InMemoryBufferedBrowsableElementStore(eventStore, 20 /*magic number found in ThresholdFetchPolicy*/);
             BootStrapper.BootUp(buffer);
 
@@ -52,9 +55,7 @@ namespace MyNotes.ApplicationService
 
         private static IBrowsableElementStore GetBuiltInBrowsableElementStore()
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["MyNotes Event Store"].ConnectionString;
-            var browsableEventStore = new MsSqlServerEventStoreElementStore(connectionString);
-
+            var browsableEventStore = new MongoDBEventStoreElementStore(MongoDBEventStore.DEFAULT_SERVER_URI, "MyNotes", new ClassResolver(typeof(Events.NoteAdded).Assembly));
             return browsableEventStore;
         }
     }

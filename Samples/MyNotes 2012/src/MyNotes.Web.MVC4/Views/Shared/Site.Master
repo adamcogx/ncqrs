@@ -1,7 +1,7 @@
 ﻿<%@ Master Language="C#" Inherits="System.Web.Mvc.ViewMasterPage" %>
 
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head id="Head1" runat="server">
     <title>
         <asp:ContentPlaceHolder ID="TitleContent" runat="server" />

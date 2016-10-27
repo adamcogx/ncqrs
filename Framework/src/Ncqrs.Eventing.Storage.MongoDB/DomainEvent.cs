@@ -10,46 +10,11 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 {
 	internal class DomainEvent
 	{
-		public ObjectId Id
+		[BsonId]
+		public long SequentialId
 		{
 			get;
 			set;
-		}
-
-		[BsonElement("aid")]
-		public Guid AggregateId
-		{
-			get; set;
-		}
-
-		[BsonElement("events")]
-		public EventInfo[] Events
-		{
-			get; set;
-		}
-
-		[BsonElement("v")]
-		public int Version
-		{
-			get; set;
-		}
-	}
-
-	internal class EventInfo
-	{
-		public EventInfo(UncommittedEvent uncomittedEvent)
-		{
-			this.Timestamp = uncomittedEvent.EventTimeStamp;
-			this.EventId = uncomittedEvent.EventIdentifier;
-			this.Version = uncomittedEvent.EventVersion.ToString();
-			this.Sequence = uncomittedEvent.EventSequence;
-			this.Event = uncomittedEvent.Payload;
-		}
-
-		[BsonElement("ts")]
-		public DateTime Timestamp
-		{
-			get; set;
 		}
 
 		[BsonElement("eid")]
@@ -58,8 +23,26 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 			get; set;
 		}
 
+		[BsonElement("ts")]
+		public DateTime Timestamp
+		{
+			get; set;
+		}
+
+		[BsonElement("n")]
+		public string Name
+		{
+			get; set;
+		}
+
 		[BsonElement("v")]
 		public string Version
+		{
+			get; set;
+		}
+
+		[BsonElement("esid")]
+		public Guid EventSourceId
 		{
 			get; set;
 		}
@@ -76,4 +59,5 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 			get; set;
 		}
 	}
+
 }

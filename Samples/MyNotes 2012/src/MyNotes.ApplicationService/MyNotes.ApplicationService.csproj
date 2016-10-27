@@ -43,6 +43,18 @@
       <HintPath>..\..\..\..\packages\Castle.Windsor.3.3.0\lib\net45\Castle.Windsor.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="MongoDB.Bson, Version=2.3.0.157, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\MongoDB.Bson.2.3.0\lib\net45\MongoDB.Bson.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MongoDB.Driver, Version=2.3.0.157, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\MongoDB.Driver.2.3.0\lib\net45\MongoDB.Driver.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MongoDB.Driver.Core, Version=2.3.0.157, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\MongoDB.Driver.Core.2.3.0\lib\net45\MongoDB.Driver.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Ncqrs">
       <HintPath>..\..\..\..\lib\$(Configuration)\Ncqrs\Ncqrs.dll</HintPath>
     </Reference>
@@ -79,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BootStrapper.cs" />
+    <Compile Include="ClassResolver.cs" />
     <Compile Include="EventBusProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -87,6 +100,14 @@
     <ProjectReference Include="..\..\..\..\Extensions\src\Ncqrs.Eventing.Sourcing.Snapshotting.Windsor\Ncqrs.Eventing.Sourcing.Snapshotting.Windsor.csproj">
       <Project>{d592752a-ad93-4592-93ad-6df6ace416a8}</Project>
       <Name>Ncqrs.Eventing.Sourcing.Snapshotting.Windsor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Framework\src\Ncqrs.Eventing.Storage.MongoDB\Ncqrs.Eventing.Storage.MongoDB.csproj">
+      <Project>{8a6d158f-019a-414e-8e94-8dd9e46d0ff0}</Project>
+      <Name>Ncqrs.Eventing.Storage.MongoDB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Ncqrs.EventBus.MongoDB\Ncqrs.EventBus.MongoDB.csproj">
+      <Project>{7809bbb3-02fb-4a51-8c58-1d1471b4380a}</Project>
+      <Name>Ncqrs.EventBus.MongoDB</Name>
     </ProjectReference>
     <ProjectReference Include="..\MyNotes.Commands\MyNotes.Commands.csproj">
       <Project>{13f7e151-60ce-45db-b550-584bb387a4d2}</Project>
@@ -99,6 +120,10 @@
     <ProjectReference Include="..\MyNotes.Domain\MyNotes.Domain.csproj">
       <Project>{cee5208b-411c-4da8-956a-8addfc01f640}</Project>
       <Name>MyNotes.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MyNotes.Events\MyNotes.Events.csproj">
+      <Project>{77193289-0cc7-455f-97de-f624704a3a5c}</Project>
+      <Name>MyNotes.Events</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

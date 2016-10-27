@@ -8,7 +8,7 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
     /// <summary>
     /// Represents snapshotable aggregate root.
     /// </summary>
-    public class DynamicSnapshotAggregateRootCreationStrategy : IAggregateRootCreationStrategy
+    public class DynamicSnapshotAggregateRootCreationStrategy : SimpleAggregateRootCreationStrategy
     {
         private readonly SnapshotableAggregateRootFactory _factory;
 
@@ -24,31 +24,11 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
         /// <summary>
         /// Creates an instance of empty snapshotable aggregate root.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public T CreateAggregateRoot<T>() where T : AggregateRoot
-        {
-            return (T)CreateAggregateRoot(typeof(T));
-        }
-
-        /// <summary>
-        /// Creates an instance of empty snapshotable aggregate root.
-        /// </summary>
         /// <param name="aggregateRootType">Type of the aggregate root.</param>
         /// <returns></returns>
-        public AggregateRoot CreateAggregateRoot(Type aggregateRootType)
+        public override AggregateRoot CreateAggregateRoot(Type aggregateRootType)
         {
             return _factory.Create(aggregateRootType);
         }
-
-        public AggregateRoot CreateAggregateRootFromCommand(Type aggregateRootType, ICommand command)
-        {
-            throw new NotImplementedException();
-        }
-
-        public T CreateAggregateRootFromCommand<T>(ICommand command) where T : AggregateRoot
-        {
-            throw new NotImplementedException();
-        }
-    }
+	}
 }

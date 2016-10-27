@@ -66,6 +66,11 @@ namespace MyNotes.ApplicationService
             return service;
         }
 
+		/// <summary>
+		/// This sets up the Event Bus that will be use by the CommandService to push all events onto the <see cref="InMemoryBufferedBrowsableElementStore"/>.
+		/// </summary>
+		/// <param name="buffer"></param>
+		/// <returns></returns>
         private static IEventBus InitializeEventBus(InMemoryBufferedBrowsableElementStore buffer)
         {
             var bus = new InProcessEventBus();
