@@ -10,11 +10,7 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 {
 	public class EventSequence
 	{
-		public ObjectId Id
-		{
-			get; set;
-		}
-
+		[BsonId]
 		public string Name
 		{
 			get; set;
