@@ -11,43 +11,48 @@ namespace Ncqrs.Domain.Storage
         : AggregateRootCreationStrategy
     {
 
+		private static Dictionary<Type, Func<Guid?, AggregateRoot>> cachedCtorMappings = new Dictionary<Type, Func<Guid?, AggregateRoot>>();
+
         protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType, Guid? id = null)
         {
-            // Flags to search for a public and non public contructor.
-            var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+			if (!cachedCtorMappings.ContainsKey(aggregateRootType)) {
 
-			AggregateRoot aggregateRoot = null;
+				// Flags to search for a public and non public contructor.
+				var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-			if (id.HasValue) {
-				// Get the constructor that we want to invoke.
-				var ctor = aggregateRootType.GetConstructor(flags, null, new Type[] { typeof(Guid) }, null);
+				AggregateRoot aggregateRoot = null;
 
-				if (ctor == null) {
-					var message = String.Format("No constructor found on aggregate root type {0} that accepts " +
-												"an Guid id", aggregateRootType.AssemblyQualifiedName);
-					throw new AggregateRootCreationException(message);
+				if (id.HasValue) {
+					// Get the constructor that we want to invoke.
+					var ctor = aggregateRootType.GetConstructor(flags, null, new Type[] { typeof(Guid) }, null);
+
+					if (ctor == null) {
+						var message = String.Format("No constructor found on aggregate root type {0} that accepts " +
+													"an Guid id", aggregateRootType.AssemblyQualifiedName);
+						throw new AggregateRootCreationException(message);
+					}
+
+					cachedCtorMappings[aggregateRootType] = x => (AggregateRoot)ctor.Invoke(new object[] { x.Value });
+				} else {
+					// Get the constructor that we want to invoke.
+					var ctor = aggregateRootType.GetConstructor(flags, null, Type.EmptyTypes, null);
+
+					// If there was no ctor found, throw exception.
+					if (ctor == null) {
+						var message = String.Format("No constructor found on aggregate root type {0} that accepts " +
+													"no parameters.", aggregateRootType.AssemblyQualifiedName);
+						throw new AggregateRootCreationException(message);
+					}
+
+					// There was a ctor found, so invoke it and return the instance.
+					cachedCtorMappings[aggregateRootType] = x => (AggregateRoot)ctor.Invoke(null);
 				}
-
-				aggregateRoot = (AggregateRoot)ctor.Invoke(new object[] { id.Value });
-			} else {
-				// Get the constructor that we want to invoke.
-				var ctor = aggregateRootType.GetConstructor(flags, null, Type.EmptyTypes, null);
-
-				// If there was no ctor found, throw exception.
-				if (ctor == null) {
-					var message = String.Format("No constructor found on aggregate root type {0} that accepts " +
-												"no parameters.", aggregateRootType.AssemblyQualifiedName);
-					throw new AggregateRootCreationException(message);
-				}
-
-				// There was a ctor found, so invoke it and return the instance.
-				aggregateRoot = (AggregateRoot)ctor.Invoke(null);
 			}
 
-			return aggregateRoot;
-        }
+			return cachedCtorMappings[aggregateRootType](id);
+		}
 
-        private static Dictionary<Tuple<Type, Type>, Tuple<ConstructorInfo, PropertyInfo[]>> cachedConstructors = new Dictionary<Tuple<Type, Type>, Tuple<ConstructorInfo, PropertyInfo[]>>();
+		private static Dictionary<Tuple<Type, Type>, Tuple<ConstructorInfo, PropertyInfo[]>> cachedCommandCtorMappings = new Dictionary<Tuple<Type, Type>, Tuple<ConstructorInfo, PropertyInfo[]>>();
 
         protected override AggregateRoot CreateAggregateRootFromTypeAndCommand(Type aggregateRootType, Commanding.ICommand command)
 		{
@@ -61,14 +66,14 @@ namespace Ncqrs.Domain.Storage
 		{
 			var key = Tuple.Create(aggregateRootType, command.GetType());
 
-			lock (cachedConstructors) {
-				if (!cachedConstructors.ContainsKey(key)) {
+			lock (cachedCommandCtorMappings) {
+				if (!cachedCommandCtorMappings.ContainsKey(key)) {
 					var match = GetMatchingConstructor(aggregateRootType, command.GetType());
-					cachedConstructors.Add(key, match);
+					cachedCommandCtorMappings.Add(key, match);
 				}
 			}
 
-			var cached = cachedConstructors[key];
+			var cached = cachedCommandCtorMappings[key];
 			return cached;
 		}
 
