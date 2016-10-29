@@ -96,7 +96,7 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 			var coll = database.GetCollection<DomainEvent>(EVENTTABLE);
 			var sort = Builders<DomainEvent>.Sort.Ascending(x => x.EventSourceId).Ascending(x => x.Version);
 
-			var results = coll.Find<DomainEvent>(x => minVersion <= x.Sequence && x.Sequence <= maxVersion).Sort(sort);
+			var results = coll.Find<DomainEvent>(x => x.EventSourceId == id && minVersion <= x.Sequence && x.Sequence <= maxVersion).Sort(sort);
 
 			foreach (var result in results.ToEnumerable()) {
 					events.Add(ReadEvent(result));
@@ -313,7 +313,7 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 			if (!collections.Contains(EVENTTABLE)) {
 				Log.InfoFormat("Creating {0} Collection", EVENTTABLE);
 				var coll = database.GetCollection<DomainEvent>(EVENTTABLE);
-				var indices = Builders<DomainEvent>.IndexKeys.Ascending(x => x.EventSourceId).Ascending(x => x.Version);
+				var indices = Builders<DomainEvent>.IndexKeys.Ascending(x => x.EventSourceId).Ascending(x => x.Sequence);
 				coll.Indexes.CreateOne(indices);
 
 				var byEventId = Builders<DomainEvent>.IndexKeys.Ascending(x => x.EventId);
