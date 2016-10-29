@@ -67,7 +67,8 @@ namespace Ncqrs.Messaging
 
         private static IMessagingAggregateRoot CreateNewAggregateInstance(Type receiverType, Guid id)
         {
-            return (IMessagingAggregateRoot)Activator.CreateInstance(receiverType, new object[] {id});
+            IAggregateRootCreationStrategy strategy = NcqrsEnvironment.Get<IAggregateRootCreationStrategy>();
+            return (IMessagingAggregateRoot) strategy.CreateAggregateRoot(receiverType, id);
         }
     }
 }

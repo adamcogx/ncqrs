@@ -11,25 +11,40 @@ namespace Ncqrs.Domain.Storage
         : AggregateRootCreationStrategy
     {
 
-        protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType)
+        protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType, Guid? id = null)
         {
             // Flags to search for a public and non public contructor.
             var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-            // Get the constructor that we want to invoke.
-            var ctor = aggregateRootType.GetConstructor(flags, null, Type.EmptyTypes, null);
+			AggregateRoot aggregateRoot = null;
 
-            // If there was no ctor found, throw exception.
-            if (ctor == null) {
-                var message = String.Format("No constructor found on aggregate root type {0} that accepts " +
-                                            "no parameters.", aggregateRootType.AssemblyQualifiedName);
-                throw new AggregateRootCreationException(message);
-            }
+			if (id.HasValue) {
+				// Get the constructor that we want to invoke.
+				var ctor = aggregateRootType.GetConstructor(flags, null, new Type[] { typeof(Guid) }, null);
 
-            // There was a ctor found, so invoke it and return the instance.
-            var aggregateRoot = (AggregateRoot)ctor.Invoke(null);
+				if (ctor == null) {
+					var message = String.Format("No constructor found on aggregate root type {0} that accepts " +
+												"an Guid id", aggregateRootType.AssemblyQualifiedName);
+					throw new AggregateRootCreationException(message);
+				}
 
-            return aggregateRoot;
+				aggregateRoot = (AggregateRoot)ctor.Invoke(new object[] { id.Value });
+			} else {
+				// Get the constructor that we want to invoke.
+				var ctor = aggregateRootType.GetConstructor(flags, null, Type.EmptyTypes, null);
+
+				// If there was no ctor found, throw exception.
+				if (ctor == null) {
+					var message = String.Format("No constructor found on aggregate root type {0} that accepts " +
+												"no parameters.", aggregateRootType.AssemblyQualifiedName);
+					throw new AggregateRootCreationException(message);
+				}
+
+				// There was a ctor found, so invoke it and return the instance.
+				aggregateRoot = (AggregateRoot)ctor.Invoke(null);
+			}
+
+			return aggregateRoot;
         }
 
         private static Dictionary<Tuple<Type, Type>, Tuple<ConstructorInfo, PropertyInfo[]>> cachedConstructors = new Dictionary<Tuple<Type, Type>, Tuple<ConstructorInfo, PropertyInfo[]>>();

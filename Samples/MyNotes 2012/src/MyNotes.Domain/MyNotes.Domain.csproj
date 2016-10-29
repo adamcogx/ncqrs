@@ -33,12 +33,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ncqrs">
-      <HintPath>..\..\..\..\lib\$(Configuration)\Ncqrs\Ncqrs.dll</HintPath>
-    </Reference>
-    <Reference Include="Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot">
-      <HintPath>..\..\..\..\lib\$(Configuration)\Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot\Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,6 +46,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Extensions\src\Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot\Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot.csproj">
+      <Project>{618e1c0f-e6b7-4c51-961d-c4ace60cfc85}</Project>
+      <Name>Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Framework\src\Ncqrs\Ncqrs.csproj">
+      <Project>{01f84441-80d3-49b4-ab18-96894acb2f90}</Project>
+      <Name>Ncqrs</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MyNotes.Events\MyNotes.Events.csproj">
       <Project>{77193289-0cc7-455f-97de-f624704a3a5c}</Project>
       <Name>MyNotes.Events</Name>

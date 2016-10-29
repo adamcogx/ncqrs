@@ -55,24 +55,6 @@
       <HintPath>..\..\..\..\packages\MongoDB.Driver.Core.2.3.0\lib\net45\MongoDB.Driver.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Ncqrs">
-      <HintPath>..\..\..\..\lib\$(Configuration)\Ncqrs\Ncqrs.dll</HintPath>
-    </Reference>
-    <Reference Include="Ncqrs.CommandService">
-      <HintPath>..\..\..\..\lib\$(Configuration)\Ncqrs.CommandService\Ncqrs.CommandService.dll</HintPath>
-    </Reference>
-    <Reference Include="Ncqrs.CommandService.Contracts">
-      <HintPath>..\..\..\..\lib\$(Configuration)\Ncqrs.CommandService.Contracts\Ncqrs.CommandService.Contracts.dll</HintPath>
-    </Reference>
-    <Reference Include="Ncqrs.Config.Windsor">
-      <HintPath>..\..\..\..\lib\$(Configuration)\Ncqrs.Config.Windsor\Ncqrs.Config.Windsor.dll</HintPath>
-    </Reference>
-    <Reference Include="Ncqrs.EventBus">
-      <HintPath>..\..\..\..\lib\$(Configuration)\Ncqrs.EventBus\Ncqrs.EventBus.dll</HintPath>
-    </Reference>
-    <Reference Include="Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot">
-      <HintPath>..\..\..\..\lib\$(Configuration)\Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot\Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -97,6 +79,26 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Extensions\src\Ncqrs.CommandService.Contracts\Ncqrs.CommandService.Contracts.csproj">
+      <Project>{76062319-4f5d-4055-9d1a-5680dd2da882}</Project>
+      <Name>Ncqrs.CommandService.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Extensions\src\Ncqrs.CommandService\Ncqrs.CommandService.csproj">
+      <Project>{9cbaeafe-9265-47ba-82c5-5e0774cbf2c5}</Project>
+      <Name>Ncqrs.CommandService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Extensions\src\Ncqrs.Config.Windsor\Ncqrs.Config.Windsor.csproj">
+      <Project>{99be6129-c5c4-45a5-94ab-0adea0a6ad53}</Project>
+      <Name>Ncqrs.Config.Windsor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Extensions\src\Ncqrs.EventBus\Ncqrs.EventBus.csproj">
+      <Project>{caf2e548-87c8-422b-a62c-8c3ed83ff3c3}</Project>
+      <Name>Ncqrs.EventBus</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Extensions\src\Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot\Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot.csproj">
+      <Project>{618e1c0f-e6b7-4c51-961d-c4ace60cfc85}</Project>
+      <Name>Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\Extensions\src\Ncqrs.Eventing.Sourcing.Snapshotting.Windsor\Ncqrs.Eventing.Sourcing.Snapshotting.Windsor.csproj">
       <Project>{d592752a-ad93-4592-93ad-6df6ace416a8}</Project>
       <Name>Ncqrs.Eventing.Sourcing.Snapshotting.Windsor</Name>
@@ -104,6 +106,10 @@
     <ProjectReference Include="..\..\..\..\Extensions\src\Ncqrs.Eventing.Storage.MongoDB\Ncqrs.Eventing.Storage.MongoDB.csproj">
       <Project>{8a6d158f-019a-414e-8e94-8dd9e46d0ff0}</Project>
       <Name>Ncqrs.Eventing.Storage.MongoDB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Framework\src\Ncqrs\Ncqrs.csproj">
+      <Project>{01f84441-80d3-49b4-ab18-96894acb2f90}</Project>
+      <Name>Ncqrs</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\Ncqrs.EventBus.MongoDB\Ncqrs.EventBus.MongoDB.csproj">
       <Project>{7809bbb3-02fb-4a51-8c58-1d1471b4380a}</Project>

@@ -24,6 +24,18 @@ namespace Ncqrs.Config.Autofac
 			this.container = builder.Build();
 		}
 
+		public AutofacConfiguration(IContainer container)
+		{
+			ContainerBuilder builder = new ContainerBuilder();
+
+			builder.RegisterType<AutofacAggregateRootCreationStrategy>()
+				.As<IAggregateRootCreationStrategy>();
+
+			builder.Update(container);
+
+			this.container = container;
+		}
+
 		public bool TryGet<T>(out T result) where T : class
 		{
 			return container.TryResolve<T>(out result);

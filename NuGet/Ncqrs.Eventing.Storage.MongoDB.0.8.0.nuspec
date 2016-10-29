@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Ncqrs.Eventing.Storage.MongoDB</id>
+        <version>0.8.0</version>
+        <title>MongoDB Event Source Storage Driver for NCQRS</title>
+        <authors>Adam Greene</authors>
+        <owners>NCQRS Committers</owners>
+        <licenseUrl>https://github.com/pjvds/ncqrs/blob/master/LICENSE.txt</licenseUrl>
+        <projectUrl>https://github.com/adamcogx/ncqrs</projectUrl>
+        <requireLicenseAcceptance>true</requireLicenseAcceptance>
+        <description>Ncqrs is a framework for .NET helps build scalable, extensible and maintainable applications by supporting developers applying the CQRS and Event Sourcing architectural patterns.  This is a storage driver for the Event Sourcing portion that uses MongoDB to store Domain Events.</description>
+        <summary>Stores Domain Events in MongoDB</summary>
+        <dependencies>
+            <dependency id="Ncqrs" version="0.8.0" />
+            <dependency id="MongoDB.Bson" version="2.3.0" />
+            <dependency id="MongoDB.Driver" version="2.3.0" />
+            <dependency id="MongoDB.Driver.Core" version="2.3.0" />
+        </dependencies>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework=".NETFramework0.0, Version=v4.5" />
+        </frameworkAssemblies>
+    </metadata>
+    <files />
+</package>

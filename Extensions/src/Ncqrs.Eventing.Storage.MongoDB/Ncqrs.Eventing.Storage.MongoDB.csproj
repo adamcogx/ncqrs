@@ -106,10 +106,6 @@
     <Compile Include="Snapshot.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Extensions\src\Ncqrs.EventBus\Ncqrs.EventBus.csproj">
-      <Project>{CAF2E548-87C8-422B-A62C-8C3ED83FF3C3}</Project>
-      <Name>Ncqrs.EventBus</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Framework\src\Ncqrs\Ncqrs.csproj">
       <Project>{01f84441-80d3-49b4-ab18-96894acb2f90}</Project>
       <Name>Ncqrs</Name>

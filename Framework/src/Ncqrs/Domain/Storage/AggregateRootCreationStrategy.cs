@@ -11,7 +11,7 @@ namespace Ncqrs.Domain.Storage
     public abstract class AggregateRootCreationStrategy 
         : IAggregateRootCreationStrategy
     {
-        public virtual AggregateRoot CreateAggregateRoot(Type aggregateRootType)
+        public virtual AggregateRoot CreateAggregateRoot(Type aggregateRootType, Guid? id = null)
         {
             if (!aggregateRootType.IsSubclassOf(typeof(AggregateRoot)))
             {
@@ -19,15 +19,15 @@ namespace Ncqrs.Domain.Storage
                 throw new ArgumentOutOfRangeException("aggregateRootType", msg);
             }
 
-            return CreateAggregateRootFromType(aggregateRootType);
+            return CreateAggregateRootFromType(aggregateRootType, id);
         }
 
-        protected abstract AggregateRoot CreateAggregateRootFromType(Type aggregateRootType);
+        protected abstract AggregateRoot CreateAggregateRootFromType(Type aggregateRootType, Guid? id = null);
         protected abstract AggregateRoot CreateAggregateRootFromTypeAndCommand(Type aggregateRootType, ICommand command);
 
-        public T CreateAggregateRoot<T>() where T : AggregateRoot
+        public T CreateAggregateRoot<T>(Guid? id = null) where T : AggregateRoot
         {
-            return (T)CreateAggregateRoot(typeof(T));
+            return (T)CreateAggregateRoot(typeof(T), id);
         }
 
         public virtual AggregateRoot CreateAggregateRootFromCommand(Type aggregateRootType, Commanding.ICommand command)

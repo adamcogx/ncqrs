@@ -41,7 +41,7 @@ namespace MyNotes.ApplicationService
             Assembly domainAssembly = Assembly.LoadFrom("MyNotes.Domain.dll");
 
             IWindsorContainer container = new WindsorContainer();
-            container.AddFacility("ncqrs.ds", new DynamicSnapshotFacility(domainAssembly));
+            container.AddFacility(new DynamicSnapshotFacility(domainAssembly));
             container.Register(
                 Component.For<ISnapshottingPolicy>().ImplementedBy<SimpleSnapshottingPolicy>(),
                 Component.For<ICommandService>().Instance(InitializeCommandService()),

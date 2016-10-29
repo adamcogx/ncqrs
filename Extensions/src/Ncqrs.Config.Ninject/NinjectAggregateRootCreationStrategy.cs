@@ -2,6 +2,7 @@
 using Ncqrs.Domain;
 using Ncqrs.Domain.Storage;
 using Ninject;
+using Ninject.Parameters;
 
 namespace Ncqrs.Config.Ninject
 {
@@ -16,10 +17,14 @@ namespace Ncqrs.Config.Ninject
             _kernel = kernel;
         }
 
-        protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType)
+        protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType, Guid? id = null)
         {
-            return (AggregateRoot) _kernel.Get(aggregateRootType);
-        }
+			if (id.HasValue) {
+				return (AggregateRoot)_kernel.Get(aggregateRootType, new ConstructorArgument("id", id.Value));
+			} else {
+				return (AggregateRoot)_kernel.Get(aggregateRootType);
+			}
+		}
 
         protected override AggregateRoot CreateAggregateRootFromTypeAndCommand(Type aggregateRootType, Commanding.ICommand command)
         {

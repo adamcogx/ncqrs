@@ -8,6 +8,7 @@ using Autofac.Core;
 using Ncqrs.Commanding;
 using Ncqrs.Domain;
 using Ncqrs.Domain.Storage;
+using Autofac.Builder;
 
 namespace Ncqrs.Config.Autofac
 {
@@ -20,9 +21,20 @@ namespace Ncqrs.Config.Autofac
 			this.container = container;
 		}
 
-		protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType)
+		protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType, Guid? id = null)
 		{
 			object root;
+
+			if (!container.IsRegistered(aggregateRootType)) {
+				ContainerBuilder builder = new ContainerBuilder();
+				var registration = builder.RegisterType(aggregateRootType);
+				builder.Update(container);
+			}
+
+			if (id.HasValue) {
+				return (AggregateRoot)container.Resolve(aggregateRootType, new NamedParameter("id", id.Value));
+			}
+
 			if (container.TryResolve(aggregateRootType, out root)) {
 				return (AggregateRoot)root;
 			} else {
