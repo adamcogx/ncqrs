@@ -14,7 +14,6 @@ using Ncqrs.Eventing.Sourcing;
 using Ncqrs.Eventing.Storage;
 using Ncqrs.Eventing.Storage.SQL;
 
-using Ncqrs.Eventing.Storage.MongoDB;
 using System.Reflection;
 
 namespace MyNotes.ApplicationService
@@ -55,7 +54,8 @@ namespace MyNotes.ApplicationService
 
         private static IBrowsableElementStore GetBuiltInBrowsableElementStore()
         {
-            var browsableEventStore = new MongoDBEventStoreElementStore(MongoDBEventStore.DEFAULT_SERVER_URI, "MyNotes", new ClassResolver(typeof(Events.NoteAdded).Assembly));
+			var connectionString = ConfigurationManager.ConnectionStrings["MyNotes Event Store"].ConnectionString;
+            var browsableEventStore = new MsSqlServerEventStoreElementStore(connectionString);
             return browsableEventStore;
         }
     }
