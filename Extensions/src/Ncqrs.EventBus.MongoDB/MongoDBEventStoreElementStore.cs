@@ -15,8 +15,6 @@ namespace Ncqrs.EventBus
 	{
 		private readonly MongoDBEventStore wrappedStore;
 		private Guid? lastEventId;
-		private readonly string databaseUrl;
-		private readonly string databaseName;
 		private readonly IMongoDatabase database;
 		public const string PIPELINETABLE = "PipelineState";
 		private const string PIPELINESEQUENCE = "Pipeline";
@@ -79,8 +77,8 @@ namespace Ncqrs.EventBus
 		// SELECT TOP 1 [LastProcessedEventId] FROM [PipelineState] WHERE [PipelineName] = @PipelineName ORDER BY [BatchId] DESC
 		private Guid? GetLastProcessedEvent(string pipelineName)
 		{
-			var coll = database.GetCollection<PipelineState>(PIPELINETABLE);
-			var sort = Builders<PipelineState>.Sort.Descending(x => x.Id);
+			var coll = database.GetCollection<PipelineStatus>(PIPELINETABLE);
+			var sort = Builders<PipelineStatus>.Sort.Descending(x => x.Id);
 			var result = coll.Find(x => x.PipelineName == pipelineName).Sort(sort).Limit(1).FirstOrDefault();
 
 			return result != null ? result.LastProcessedEventId : (Guid?)null;
@@ -89,9 +87,9 @@ namespace Ncqrs.EventBus
 		public void MarkLastProcessedElement(string pipelineName, IProcessingElement processingElement)
 		{
 			var typedElement = (SourcedEventProcessingElement)processingElement;
-			var pipeline = new PipelineState() { Id = wrappedStore.GetNextSequence(PIPELINESEQUENCE), PipelineName = pipelineName, LastProcessedEventId = typedElement.Event.EventIdentifier };
+			var pipeline = new PipelineStatus() { Id = wrappedStore.GetNextSequence(PIPELINESEQUENCE), PipelineName = pipelineName, LastProcessedEventId = typedElement.Event.EventIdentifier };
 
-			var coll = database.GetCollection<PipelineState>(PIPELINETABLE);
+			var coll = database.GetCollection<PipelineStatus>(PIPELINETABLE);
 			coll.InsertOne(pipeline);
 		}
 	}

@@ -1,19 +1,18 @@
 ﻿using Autofac;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace Ncqrs.Config.Autofac.Tests
 {
-    [TestFixture]
     public class AutofacConfigurationTests
     {
-        [Test]
+        [Fact]
         public void When_component_is_registered_it_should_be_retrievable()
         {
-            var kernel = new ContainerBuilder();
-            kernel.RegisterType<Nexus6>().As<IReplicant>();
+            var builder = new ContainerBuilder();
+            builder.RegisterType<Nexus6>().As<IReplicant>();
 
-            var container = kernel.Build();
+            var container = builder.Build();
             var configuration = new AutofacConfiguration(container);
 
             IReplicant component;
@@ -24,11 +23,11 @@ namespace Ncqrs.Config.Autofac.Tests
             component.Should().BeAssignableTo<IReplicant>();
         }
 
-        [Test]
+        [Fact]
         public void When_component_is_not_registered_it_should_not_be_retrievable()
         {
-            var kernel = new ContainerBuilder();
-            var container = kernel.Build();
+            var builder = new ContainerBuilder();
+            var container = builder.Build();
             var configuration = new AutofacConfiguration(container);
 
             IReplicant component;

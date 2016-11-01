@@ -7,8 +7,7 @@ using MongoDB.Bson;
 
 namespace Ncqrs.EventBus
 {
-	// [PipelineName], [LastProcessedEventId]
-	class PipelineState
+	class PipelineStatus
 	{
 		public long Id
 		{
