@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot</RootNamespace>
-    <AssemblyName>Ncqrs.Event.Sourcing.Snapshotting.Autofac</AssemblyName>
+    <AssemblyName>Ncqrs.Eventing.Sourcing.Snapshotting.Autofac</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

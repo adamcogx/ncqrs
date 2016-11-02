@@ -10,12 +10,12 @@ using Ncqrs.Domain.Storage;
 
 namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 {
-	class DynamicSnapshotModule : Autofac.Module
+	public class DynamicSnapshotModule : Autofac.Module
 	{
 		private readonly Assembly _assemblyWithAggreagateRoots;
 
 		private readonly bool _generateDynamicSnapshotAssembly;
-		private readonly Func<string> path;
+		private readonly Func<string> assemblyFileName;
 
 		public DynamicSnapshotModule(string assemblyName) : this(Assembly.Load(assemblyName))
 		{
@@ -29,11 +29,11 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 		{
 		}
 
-		public DynamicSnapshotModule(Assembly assemblyWithAggregateRoots, bool generateDynamicSnapshotAssembly, Func<string> path = null) : base()
+		public DynamicSnapshotModule(Assembly assemblyWithAggregateRoots, bool generateDynamicSnapshotAssembly, Func<string> assemblyFilename = null) : base()
 		{
 			this._generateDynamicSnapshotAssembly = generateDynamicSnapshotAssembly;
 			this._assemblyWithAggreagateRoots = assemblyWithAggregateRoots;
-			this.path = path;
+			this.assemblyFileName = assemblyFilename;
 		}
 
 		protected override void Load(ContainerBuilder builder)
@@ -42,14 +42,14 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 			builder.RegisterType<DynamicSnapshotAggregateRootCreationStrategy>().As<IAggregateRootCreationStrategy>();
 			builder.RegisterType<AggregateSupportsDynamicSnapshotValidator>().As<IAggregateSupportsSnapshotValidator>();
 			builder.RegisterType<AggregateDynamicSnapshotter>().As<IAggregateSnapshotter>();
-			builder.RegisterType<DynamicSnapshotAssembly>().OnActivated(x => {
+			builder.RegisterType<DynamicSnapshotAssembly>().OnActivating(x => {
 				if (this._generateDynamicSnapshotAssembly) {
 					x.Instance.CreateAssemblyFrom(this._assemblyWithAggreagateRoots);
 				}
-			}).As<IDynamicSnapshotAssembly>();
+			}).As<IDynamicSnapshotAssembly>().SingleInstance();
 			builder.RegisterType<SnapshotableAggregateRootFactory>().As<SnapshotableAggregateRootFactory>();
 			builder.RegisterType<DynamicSnapshotAssemblyBuilder>().SingleInstance()
-				.WithParameter(new NamedParameter("pathFactory", path))
+				.WithParameter(new NamedParameter("assemblyFilename", assemblyFileName()))
 				.As<DynamicSnapshotAssemblyBuilder>();
 			builder.RegisterType<DynamicSnapshotTypeBuilder>().As<DynamicSnapshotTypeBuilder>();
 			builder.RegisterType<SnapshotableImplementerFactory>().As<SnapshotableImplementerFactory>();
