@@ -14,9 +14,9 @@ namespace Ncqrs.Config.Autofac
 {
 	class AutofacAggregateRootCreationStrategy : SimpleAggregateRootCreationStrategy
 	{
-		private readonly IContainer container;
+		private readonly IComponentContext container;
 
-		public AutofacAggregateRootCreationStrategy(global::Autofac.IContainer container)
+		public AutofacAggregateRootCreationStrategy(global::Autofac.IComponentContext container)
 		{
 			this.container = container;
 		}
@@ -28,7 +28,7 @@ namespace Ncqrs.Config.Autofac
 			if (!container.IsRegistered(aggregateRootType)) {
 				ContainerBuilder builder = new ContainerBuilder();
 				var registration = builder.RegisterType(aggregateRootType);
-				builder.Update(container);
+				builder.Update(container.ComponentRegistry);
 			}
 
 			if (id.HasValue) {
