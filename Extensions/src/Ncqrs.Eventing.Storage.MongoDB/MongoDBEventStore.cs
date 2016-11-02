@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -23,13 +24,11 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 		private const string DEFAULTSEQUENCE = "Default";
 
 		protected static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-		protected readonly IMongoDatabase database;
 		private static MethodInfo maker = typeof(MongoDBEventStore).GetMethod("MakeStoredEvent", BindingFlags.NonPublic | BindingFlags.Static);
 		private static object registerLock = new object();
 
-		private IClassMapBuilder classMapBuilder = null;
-
 		private bool initialized;
+		private readonly IDatabaseManager databaseManager;
 
 		public MongoDBEventStore(IClassMapBuilder builder = null)
 			: this(DEFAULT_SERVER_URI, DEFAULT_DATABASE, builder)
@@ -53,10 +52,13 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 
 		public MongoDBEventStore(string databaseUri, string databaseName, IClassMapBuilder builder = null)
 		{
-			MongoClient client = new MongoClient(new MongoClientSettings() { WriteConcern = WriteConcern.Acknowledged });
-			this.database = client.GetDatabase(databaseName);
-			this.classMapBuilder = builder;
+			databaseManager = new DatabaseManager(databaseUri, databaseName, () => EnsureEventTypes(builder));
+			SetupCollections();
+		}
 
+		public MongoDBEventStore(IDatabaseManager dbManager)
+		{
+			databaseManager = dbManager;
 			SetupCollections();
 		}
 
@@ -66,7 +68,7 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 			var filter = filterSrc.Eq(x => x.EventSourceId, eventSourceId);
 			var sort = Builders<Snapshot>.Sort.Descending(x => x.Version);
 
-			var coll = database.GetCollection<Snapshot>(SNAPSHOTTABLE);
+			var coll = databaseManager.GetCollection<Snapshot>(SNAPSHOTTABLE);
 			var result = coll.Find(filter).Sort(sort).FirstOrDefault();
 
 			if (result != null) {
@@ -86,14 +88,13 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 
 		public CommittedEventStream ReadFrom(Guid id, long minVersion, long maxVersion)
 		{
-			EnsureEventTypes();
 			var events = new List<CommittedEvent>();
 
 			//var filter = Builders<DomainEvent>.Filter.Eq(x => x.AggregateId, id);
 			//var project = Builders<DomainEvent>.Projection.Expression(x => new {
 			//	Events = x.Events.Where(e => minVersion <= e.Sequence && e.Sequence <= maxVersion)
 			//});
-			var coll = database.GetCollection<DomainEvent>(EVENTTABLE);
+			var coll = databaseManager.GetCollection<DomainEvent>(EVENTTABLE);
 			var sort = Builders<DomainEvent>.Sort.Ascending(x => x.EventSourceId).Ascending(x => x.Version);
 
 			var results = coll.Find<DomainEvent>(x => x.EventSourceId == id && minVersion <= x.Sequence && x.Sequence <= maxVersion).Sort(sort);
@@ -118,15 +119,13 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 					Payload = data
 				};
 
-				var coll = database.GetCollection<Snapshot>(SNAPSHOTTABLE);
+				var coll = databaseManager.GetCollection<Snapshot>(SNAPSHOTTABLE);
 				coll.InsertOne(dbSnapshot);
 			}
 		}
 
 		public void Store(UncommittedEventStream eventStream)
 		{
-			EnsureEventTypes();
-
 			if (!eventStream.Any())
 				return;
 
@@ -142,9 +141,7 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 
 		public IEnumerable<CommittedEvent> GetEventsAfter(Guid? eventId, int maxCount)
 		{
-			EnsureEventTypes();
-
-			var coll = database.GetCollection<DomainEvent>(EVENTTABLE);
+			var coll = databaseManager.GetCollection<DomainEvent>(EVENTTABLE);
 
 			long? sequenceId = null;
 
@@ -167,10 +164,10 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 			return results;
 		}
 
-		private CommittedEvent ReadEvent(DomainEvent x)
+		private CommittedEvent ReadEvent(DomainEvent domainEvent)
 		{
-			StoredEvent evt = maker.MakeGenericMethod(x.Event.GetType()).Invoke(null, new object[] { x }) as StoredEvent;
-			var committedEvt = new CommittedEvent(Guid.Empty, evt.EventIdentifier, evt.EventSourceId, evt.EventSequence, evt.EventTimeStamp, x.Event, evt.EventVersion);
+			StoredEvent evt = maker.MakeGenericMethod(domainEvent.Event.GetType()).Invoke(null, new object[] { domainEvent }) as StoredEvent;
+			var committedEvt = new CommittedEvent(Guid.Empty, evt.EventIdentifier, evt.EventSourceId, evt.EventSequence, evt.EventTimeStamp, domainEvent.Event, evt.EventVersion);
 
 			if (committedEvt is ISourcedEvent) {
 				((ISourcedEvent)committedEvt).InitializeFrom(evt);
@@ -200,7 +197,7 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 				Version = initialVersion
 			};
 
-			var coll = database.GetCollection<EventSource>(EVENTSOURCETABLE);
+			var coll = databaseManager.GetCollection<EventSource>(EVENTSOURCETABLE);
 			coll.InsertOne(eventSource);
 		}
 
@@ -209,7 +206,7 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 			return (StoredEvent)maker.MakeGenericMethod(evnt.Event.GetType()).Invoke(null, new object[] { evnt });
 		}
 
-		private void EnsureEventTypes()
+		private IEnumerable<BsonClassMap> EnsureEventTypes(IClassMapBuilder classMapBuilder)
 		{
 			if (!initialized) {
 				lock (registerLock) {
@@ -233,21 +230,17 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 							classMaps = builder.Build();
 						}
 
-						foreach (var map in classMaps) {
-							if (!BsonClassMap.IsClassMapRegistered(map.ClassType)) {
-								BsonClassMap.RegisterClassMap(map);
-							}
-						}
-
-						initialized = true;
+						return classMaps;
 					}
 				}
 			}
+
+			throw new InvalidOperationException("Could not resolve BsonClassMaps (no IClassMapBuilder registered with NCQRS)");
 		}
 
 		public long GetNextSequence(string name = DEFAULTSEQUENCE)
 		{
-			var coll = database.GetCollection<EventSequence>(SEQUENCETABLE);
+			var coll = databaseManager.GetCollection<EventSequence>(SEQUENCETABLE);
 			var update = Builders<EventSequence>.Update.Inc(x => x.Sequence, 1);
 			var options = new FindOneAndUpdateOptions<EventSequence, EventSequence> { ReturnDocument = ReturnDocument.After };
 
@@ -264,7 +257,7 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 
 		private long? GetVersion(Guid eventSourceId)
 		{
-			var collection = database.GetCollection<EventSource>(EVENTSOURCETABLE);
+			var collection = databaseManager.GetCollection<EventSource>(EVENTSOURCETABLE);
 			var sort = Builders<EventSource>.Sort.Descending(x => x.Version);
 
 			return collection.Find(x => x.Id == eventSourceId)
@@ -278,7 +271,7 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 		{
 			Contract.Requires<ArgumentNullException>(eventStream != null, "The argument eventStream could not be null");
 
-			var coll = database.GetCollection<DomainEvent>(EVENTTABLE);
+			var coll = databaseManager.GetCollection<DomainEvent>(EVENTTABLE);
 			var eventSourceId = eventStream.First().EventSourceId;
 
 			foreach (var sourcedEvent in eventStream) {
@@ -302,17 +295,17 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 				Event= uncommittedEvent.Payload
 			};
 
-			var coll = database.GetCollection<DomainEvent>(EVENTTABLE);
+			var coll = databaseManager.GetCollection<DomainEvent>(EVENTTABLE);
 			coll.InsertOne(evnt);
 		}
 
 		private void SetupCollections()
 		{
-			var collections = database.ListCollections().ToList().Select(x => x.GetValue("name").AsString).ToList();
+			var collections = databaseManager.CollectionNames;
 
-			if (!collections.Contains(EVENTTABLE)) {
+			if (!collections.Contains(EVENTTABLE, StringComparer.OrdinalIgnoreCase)) {
 				Log.InfoFormat("Creating {0} Collection", EVENTTABLE);
-				var coll = database.GetCollection<DomainEvent>(EVENTTABLE);
+				var coll = databaseManager.GetCollection<DomainEvent>(EVENTTABLE);
 				var indices = Builders<DomainEvent>.IndexKeys.Ascending(x => x.EventSourceId).Ascending(x => x.Sequence);
 				coll.Indexes.CreateOne(indices);
 
@@ -320,23 +313,23 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 				coll.Indexes.CreateOne(byEventId);
 			}
 
-			if (!collections.Contains(EVENTSOURCETABLE)) {
+			if (!collections.Contains(EVENTSOURCETABLE, StringComparer.OrdinalIgnoreCase)) {
 				Log.InfoFormat("Creating {0} Collection", EVENTSOURCETABLE);
-				var coll = database.GetCollection<EventSource>(EVENTSOURCETABLE);
+				var coll = databaseManager.GetCollection<EventSource>(EVENTSOURCETABLE);
 				var indices = Builders<EventSource>.IndexKeys.Ascending(x => x.Id).Descending(x => x.Version);
 				coll.Indexes.CreateOne(indices);
 			}
 
-			if (!collections.Contains(SNAPSHOTTABLE)) {
+			if (!collections.Contains(SNAPSHOTTABLE, StringComparer.OrdinalIgnoreCase)) {
 				Log.InfoFormat("Creating {0} Collection", SNAPSHOTTABLE);
-				var coll = database.GetCollection<Snapshot>(SNAPSHOTTABLE);
+				var coll = databaseManager.GetCollection<Snapshot>(SNAPSHOTTABLE);
 				var indices = Builders<Snapshot>.IndexKeys.Ascending(x => x.Id).Descending(x => x.Version);
 				coll.Indexes.CreateOne(indices);
 			}
 
-			if (!collections.Contains(SEQUENCETABLE)) {
+			if (!collections.Contains(SEQUENCETABLE, StringComparer.OrdinalIgnoreCase)) {
 				Log.InfoFormat("Creating {0} Collection", SEQUENCETABLE);
-				var coll = database.GetCollection<EventSequence>(SEQUENCETABLE);
+				var coll = databaseManager.GetCollection<EventSequence>(SEQUENCETABLE);
 				coll.InsertOne(new EventSequence { Sequence = 0, Name = "Default" });
 			}
 		}
@@ -372,7 +365,7 @@ namespace Ncqrs.Eventing.Storage.MongoDB
 
 		private bool UpdateEventSourceVersion(Guid eventSourceId, long newVersion, long initialVersion)
 		{
-			var coll = database.GetCollection<EventSource>(EVENTSOURCETABLE);
+			var coll = databaseManager.GetCollection<EventSource>(EVENTSOURCETABLE);
 
 			var filter = Builders<EventSource>.Filter.And(
 				Builders<EventSource>.Filter.Eq(x => x.Id, eventSourceId),

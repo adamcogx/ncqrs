@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\lib\Debug\Ncqrs.Eventing.Storage.MongoDB\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -97,10 +97,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DatabaseManager.cs" />
     <Compile Include="DomainEvent.cs" />
     <Compile Include="EventSequence.cs" />
     <Compile Include="EventSource.cs" />
     <Compile Include="IClassMapBuilder.cs" />
+    <Compile Include="IDatabaseManager.cs" />
     <Compile Include="MongoDBEventStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Snapshot.cs" />
