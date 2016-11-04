@@ -16,9 +16,6 @@ namespace Ncqrs.Config.Autofac
 		{
 			ContainerBuilder builder = new ContainerBuilder();
 
-			//builder.Register(container => new AutofacAggregateRootCreationStrategy(container))
-			//	.As<IAggregateRootCreationStrategy>().SingleInstance();
-
 			setup(builder);
 
 			this.container = builder.Build();
@@ -27,9 +24,6 @@ namespace Ncqrs.Config.Autofac
 		public AutofacConfiguration(IContainer container)
 		{
 			ContainerBuilder builder = new ContainerBuilder();
-
-			//builder.RegisterType<AutofacAggregateRootCreationStrategy>()
-			//	.As<IAggregateRootCreationStrategy>();
 
 			builder.Update(container);
 

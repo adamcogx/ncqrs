@@ -21,7 +21,7 @@ namespace Ncqrs.Config.Autofac
 			this.container = container;
 		}
 
-		protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType, Guid? id = null)
+		protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType, Guid? id)
 		{
 			object root;
 
@@ -31,15 +31,20 @@ namespace Ncqrs.Config.Autofac
 				builder.Update(container.ComponentRegistry);
 			}
 
-			if (id.HasValue) {
-				return (AggregateRoot)container.Resolve(aggregateRootType, new NamedParameter("id", id.Value));
+			return (AggregateRoot)container.Resolve(aggregateRootType, new NamedParameter("id", id.Value));
+		}
+
+		protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType)
+		{
+			object root;
+
+			if (!container.IsRegistered(aggregateRootType)) {
+				ContainerBuilder builder = new ContainerBuilder();
+				var registration = builder.RegisterType(aggregateRootType);
+				builder.Update(container.ComponentRegistry);
 			}
 
-			if (container.TryResolve(aggregateRootType, out root)) {
-				return (AggregateRoot)root;
-			} else {
-				return ResolveAggregateRoot(aggregateRootType, Enumerable.Empty<Parameter>());
-			}
+			return (AggregateRoot)container.Resolve(aggregateRootType);
 		}
 
 		protected override AggregateRoot CreateAggregateRootFromTypeAndCommand(Type aggregateRootType, ICommand command)
@@ -65,7 +70,8 @@ namespace Ncqrs.Config.Autofac
 		}
 	}
 
-	static class StringExtensions {
+	static class StringExtensions
+	{
 		public static string CamelCase(this string src)
 		{
 			return src.Substring(0, 1).ToLower() + src.Substring(1);
