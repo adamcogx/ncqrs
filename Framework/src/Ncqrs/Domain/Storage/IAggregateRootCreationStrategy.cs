@@ -9,8 +9,10 @@ namespace Ncqrs.Domain.Storage
     /// </summary>
     public interface IAggregateRootCreationStrategy
     {
-        AggregateRoot CreateAggregateRoot(Type aggregateRootType, Guid? id = null);
+        AggregateRoot CreateAggregateRoot(Type aggregateRootType, Guid? id);
+        AggregateRoot CreateAggregateRoot(Type aggregateRootType);
         T CreateAggregateRoot<T>(Guid? id = null) where T : AggregateRoot;
+        T CreateAggregateRoot<T>() where T : AggregateRoot;
         AggregateRoot CreateAggregateRootFromCommand(Type aggregateRootType, ICommand command);
         T CreateAggregateRootFromCommand<T>(ICommand command) where T : AggregateRoot;
     }

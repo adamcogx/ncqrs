@@ -15,12 +15,17 @@ namespace Ncqrs.Domain.Storage
             _createFromCommandFactoryMethod = createFromCommandFactoryMethod;
         }
 
-        protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType, Guid? id = null)
+        protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType, Guid? id)
         {
             return _factoryMethod(aggregateRootType, id);
         }
 
-        protected override AggregateRoot CreateAggregateRootFromTypeAndCommand(Type aggregateRootType, ICommand command)
+		protected override AggregateRoot CreateAggregateRootFromType(Type aggregateRootType)
+		{
+			return _factoryMethod(aggregateRootType, null);
+		}
+
+		protected override AggregateRoot CreateAggregateRootFromTypeAndCommand(Type aggregateRootType, ICommand command)
         {
             return _createFromCommandFactoryMethod(aggregateRootType, command);
         }
