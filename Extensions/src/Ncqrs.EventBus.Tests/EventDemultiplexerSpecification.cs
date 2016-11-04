@@ -1,14 +1,13 @@
 using System;
 using Ncqrs.Eventing;
-using NUnit.Framework;
 using FluentAssertions;
+using Xunit;
 
 namespace Ncqrs.EventBus.Tests
 {
-    [TestFixture]
     public class EventDemultiplexerSpecification
     {
-        [Test]
+        [Fact]
         public void When_event_source_is_not_blocked_event_is_passed_through_system()
         {
             Guid eventSourceId = Guid.NewGuid();
@@ -22,7 +21,7 @@ namespace Ncqrs.EventBus.Tests
 
         }
 
-        [Test]
+        [Fact]
         public void Different_event_sources_does_not_block_each_other()
         {
             Guid firstEventSourceId = Guid.NewGuid();
@@ -38,7 +37,7 @@ namespace Ncqrs.EventBus.Tests
             enqueuedToProcessingCount.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void When_event_source_is_blocked_event_is_enqueued()
         {
             Guid eventSourceId = Guid.NewGuid();

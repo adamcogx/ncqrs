@@ -3,16 +3,14 @@ using System.Data.SQLite;
 using System.IO;
 using Ncqrs.Eventing.Sourcing;
 using Ncqrs.Eventing.Storage.SQLite.Tests.Fakes;
-using NUnit.Framework;
 using Rhino.Mocks;
+using Xunit;
 
 namespace Ncqrs.Eventing.Storage.SQLite.Tests
 {
-    [TestFixture]
-    public class ManualSQLiteContextTests
+    public class ManualSQLiteContextTests : IDisposable
     {
-        [SetUp]
-        public void Setup()
+        public ManualSQLiteContextTests()
         {
             _path = Path.GetTempFileName();
             _connString = string.Format("Data Source={0};", _path);
@@ -26,14 +24,6 @@ namespace Ncqrs.Eventing.Storage.SQLite.Tests
             _store = new SQLiteEventStore(_context);
         }
 
-        [TearDown]
-        public void Teardown()
-        {
-            _transaction.Dispose();
-            _connection.Dispose();
-            File.Delete(_path);
-        }
-
         private string _path;
         private string _connString;
         private SQLiteEventStore _store;
@@ -41,7 +31,7 @@ namespace Ncqrs.Eventing.Storage.SQLite.Tests
         private SQLiteConnection _connection;
         private SQLiteTransaction _transaction;
 
-        [Test]
+        [Fact]
         public void Save_SmokeTest()
         {
             var sequenceCounter = 0;
@@ -60,7 +50,7 @@ namespace Ncqrs.Eventing.Storage.SQLite.Tests
             _transaction.Commit();
         }
         
-        [Test]
+        [Fact]
         public void Rolling_back_transaction_should_remove_inserted_rows()
         {
             var id = Guid.NewGuid();
@@ -83,10 +73,17 @@ namespace Ncqrs.Eventing.Storage.SQLite.Tests
                 {
                     while (reader.Read())
                     {
-                        Assert.Fail("No rows should exist");
+                        Assert.True(false, "No rows should exist");
                     }
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            _transaction.Dispose();
+            _connection.Dispose();
+            File.Delete(_path);
         }
     }
 }

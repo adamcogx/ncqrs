@@ -1,13 +1,12 @@
 ﻿using System;
-using NUnit.Framework;
 using FluentAssertions;
+using Xunit;
 
 namespace Ncqrs.EventBus.Tests
 {
-    [TestFixture]
     public class CursorPositionCalculatorSpecification
     {        
-        [Test]
+        [Fact]
         public void When_event_does_not_lengthen_the_sequence()
         {
             var sut = new CursorPositionCalculator(0);
@@ -17,7 +16,7 @@ namespace Ncqrs.EventBus.Tests
             sut.SequenceLength.Should().Be(0);
         }        
 
-        [Test]
+        [Fact]
         public void When_event_lengthens_the_sequence()
         {
             var sut = new CursorPositionCalculator(0);
@@ -27,7 +26,7 @@ namespace Ncqrs.EventBus.Tests
             sut.SequenceLength.Should().Be(1);   
         }
         
-        [Test]
+        [Fact]
         public void When_event_fills_gap_in_sequence_sequence_length_is_incremented_by_gap_size()
         {
             var sut = new CursorPositionCalculator(0);
@@ -41,7 +40,7 @@ namespace Ncqrs.EventBus.Tests
             sut.SequenceLength.Should().Be(3);            
         }
 
-        [Test]
+        [Fact]
         public void When_clearing_sequence()
         {
             var sut = new CursorPositionCalculator(0);

@@ -5,8 +5,8 @@ using Ncqrs.Commanding.CommandExecution;
 using Ncqrs.Eventing;
 using Ncqrs.Eventing.ServiceModel.Bus;
 using Ncqrs.Eventing.Sourcing;
-using NUnit.Framework;
 using Moq;
+using Xunit;
 
 namespace Ncqrs.Config.Windsor.Tests
 {
@@ -19,8 +19,7 @@ namespace Ncqrs.Config.Windsor.Tests
         Mock<IEventHandler<FakeEventBase>> _handler2;
         Mock<IEventHandler<IFakeEventInterface>> _handler3;
 
-        [SetUp]
-        public void SetUp()
+        public WindsorConfigurationEventBusTests()
         {
             _testEvent = new UncommittedEvent(Guid.NewGuid(), Guid.NewGuid(), 1, 1, DateTime.UtcNow, new FakeEvent(),
                                               new Version(1, 0));
@@ -41,13 +40,13 @@ namespace Ncqrs.Config.Windsor.Tests
             svc.Publish(_testEvent);
         }
 
-        [Test]
+        [Fact]
         public void it_should_call_the_class_handler_once() { _handler1.Verify(x => x.Handle(It.IsAny<IPublishedEvent<FakeEvent>>())); }
 
-        [Test]
+        [Fact]
         public void it_should_call_the_base_class_handler_once() { _handler2.Verify(x => x.Handle(It.IsAny<IPublishedEvent<FakeEventBase>>())); }
         
-        [Test]
+        [Fact]
         public void it_should_call_the_interface_handler_once() { _handler3.Verify(x => x.Handle(It.IsAny<IPublishedEvent<IFakeEventInterface>>())); }
     }
 

@@ -4,11 +4,10 @@ using Moq;
 using Ncqrs.Commanding;
 using Ncqrs.Commanding.CommandExecution;
 using Ncqrs.Commanding.ServiceModel;
-using NUnit.Framework;
+using Xunit;
 
 namespace Ncqrs.Config.Windsor.Tests
 {
-    [TestFixture]
     public class when_using_windsor_to_registor_command_interceptors_and_handlers
     {
         WindsorContainer _container;
@@ -17,8 +16,7 @@ namespace Ncqrs.Config.Windsor.Tests
         FakeCommand _testCommand;
         FakeInterceptor2 _interceptor2;
 
-        [SetUp]
-        public void SetUp()
+        public when_using_windsor_to_registor_command_interceptors_and_handlers()
         {
             _handler = new Mock<ICommandExecutor<FakeCommand>>();
             _handler.SetupAllProperties();
@@ -36,24 +34,24 @@ namespace Ncqrs.Config.Windsor.Tests
             svc.Execute(_testCommand);
         }
 
-        [Test]
+        [Fact]
         public void it_should_call_the_handler()
         {
             _handler.Verify(h => h.Execute(_testCommand));
         }
 
-        [Test]
+        [Fact]
         public void it_should_call_both_interceptors()
         {
-            Assert.That(_interceptor.OnBeforeExecutorResolvingCalled);
-            Assert.That(_interceptor.OnBeforeExecutionCalled);
-            Assert.That(_interceptor.OnAfterExecutionCalled);
-            Assert.That(_interceptor2.OnBeforeExecutorResolvingCalled);
-            Assert.That(_interceptor2.OnBeforeExecutionCalled);
-            Assert.That(_interceptor2.OnAfterExecutionCalled);
+            Assert.True(_interceptor.OnBeforeExecutorResolvingCalled);
+            Assert.True(_interceptor.OnBeforeExecutionCalled);
+            Assert.True(_interceptor.OnAfterExecutionCalled);
+            Assert.True(_interceptor2.OnBeforeExecutorResolvingCalled);
+            Assert.True(_interceptor2.OnBeforeExecutionCalled);
+            Assert.True(_interceptor2.OnAfterExecutionCalled);
         }
 
-        [Test]
+        [Fact]
         public void CanExecuteCommandRepeatedly()
         {
             var svc = _container.Resolve<ICommandService>();
@@ -73,23 +71,23 @@ namespace Ncqrs.Config.Windsor.Tests
         public void OnBeforeBeforeExecutorResolving(CommandContext context)
         {
             OnBeforeExecutorResolvingCalled = true;
-            Assert.That(!context.ExecutorResolved);
-            Assert.That(!context.ExecutorHasBeenCalled);
-            Assert.That(context.Exception, Is.Null);
+            Assert.True(!context.ExecutorResolved);
+            Assert.True(!context.ExecutorHasBeenCalled);
+            Assert.Null(context.Exception);
         }
         public void OnBeforeExecution(CommandContext context)
         {
             OnBeforeExecutionCalled = true;
-            Assert.That(context.ExecutorResolved);
-            Assert.That(!context.ExecutorHasBeenCalled);
-            Assert.That(context.Exception, Is.Null);
+            Assert.True(context.ExecutorResolved);
+            Assert.True(!context.ExecutorHasBeenCalled);
+            Assert.Null(context.Exception);
         }
         public void OnAfterExecution(CommandContext context)
         {
             OnAfterExecutionCalled = true;
-            Assert.That(context.ExecutorResolved);
-            Assert.That(context.ExecutorHasBeenCalled);
-            Assert.That(context.Exception, Is.Null);
+            Assert.True(context.ExecutorResolved);
+            Assert.True(context.ExecutorHasBeenCalled);
+            Assert.Null(context.Exception);
         }
     }
 

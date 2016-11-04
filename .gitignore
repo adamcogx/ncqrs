@@ -46,3 +46,5 @@ release
 **/TestResults/*
 .vs/
 *.nupkg
+/Extensions/src/Ncqrs.Eventing.Sourcing.Snapshotting.Autofac/Visual Studio 2015/settings
+/Extensions/src/Ncqrs.Eventing.Sourcing.Snapshotting.Autofac/.sass-cache/4591099f20bedb549aea612d0c8358177f559ee3

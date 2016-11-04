@@ -1,14 +1,13 @@
 ﻿using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace Ncqrs.Config.Windsor.Tests
 {
-    [TestFixture]
     public class WindsorConfigurationTests
     {
-        [Test]
+        [Fact]
         public void When_component_is_registered_it_should_be_retrievable()
         {
             var container = new WindsorContainer();
@@ -24,7 +23,7 @@ namespace Ncqrs.Config.Windsor.Tests
             component.Should().BeOfType<Nexus6>();
         }
 
-        [Test]
+        [Fact]
         public void When_component_is_not_registered_it_should_not_be_retrievable()
         {
             var configuration = new WindsorConfiguration(new WindsorContainer());

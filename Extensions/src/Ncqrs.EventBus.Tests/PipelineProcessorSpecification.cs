@@ -1,7 +1,7 @@
 using System;
 using Ncqrs.Eventing.Sourcing;
-using NUnit.Framework;
 using Rhino.Mocks;
+using Xunit;
 
 namespace Ncqrs.EventBus.Tests
 {
@@ -9,13 +9,12 @@ namespace Ncqrs.EventBus.Tests
     {        
         private IProcessingElement _element;
 
-        [SetUp]
-        public void SetUp()
+        public PipelineProcessorSpecification()
         {
             _element = new TestElement();
         }
 
-        [Test]
+        [Fact]
         public void When_processing_succeeds_processed_event_is_fired()
         {
             bool eventFired = false;
@@ -24,10 +23,10 @@ namespace Ncqrs.EventBus.Tests
             
             pipelineProcessor.ProcessNext(_element);
 
-            Assert.IsTrue(eventFired);
+            Assert.True(eventFired);
         }
 
-        [Test]
+        [Fact]
         public void When_processing_fails_processed_event_is_not_fired()
         {
             bool eventFired = false;
@@ -36,7 +35,7 @@ namespace Ncqrs.EventBus.Tests
 
             pipelineProcessor.ProcessNext(_element);
 
-            Assert.IsFalse(eventFired);
+            Assert.False(eventFired);
         }
 
         public class SucceedingEventProcessor : IElementProcessor

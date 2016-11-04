@@ -4,15 +4,14 @@ using Ncqrs.Commanding;
 using Ncqrs.Commanding.CommandExecution;
 using Ncqrs.Commanding.CommandExecution.Mapping.Attributes;
 using Ncqrs.Domain;
-using NUnit.Framework;
 using Rhino.Mocks;
+using Xunit;
 
 namespace Ncqrs.NServiceBus.Tests
 {
-    [TestFixture]
     public class NsbCommandServiceTests
     {
-        [Test]
+        [Fact]
         public void Executing_not_mapped_command_with_no_registered_executors_should_cause_exception()
         {
             var sut = new NsbCommandService();
@@ -20,14 +19,14 @@ namespace Ncqrs.NServiceBus.Tests
             act.ShouldThrow<ExecutorForCommandNotFoundException>();
         }
 
-        [Test]
+        [Fact]
         public void Mapped_command_with_no_registered_executors_should_be_executed_using_mapped_executor()
         {
             var sut = new NsbCommandService();
             sut.Execute(new MappedCommand());
         }
 
-        [Test]
+        [Fact]
         public void Mapped_command_with_registered_executors_should_be_executed_using_registered_executor()
         {
             var executor = MockRepository.GenerateMock<ICommandExecutor<MappedCommand>>();
@@ -39,7 +38,7 @@ namespace Ncqrs.NServiceBus.Tests
             executor.AssertWasCalled(x => x.Execute(command));
         }
 
-        [Test]
+        [Fact]
         public void Not_mapped_command_with_registered_executors_should_be_executed_using_registered_executor()
         {
             var executor = MockRepository.GenerateMock<ICommandExecutor<NotMappedCommand>>();

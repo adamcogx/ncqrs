@@ -153,6 +153,8 @@
     <Compile Include="Eventing\Storage\SQL\EventSource.cs" />
     <Compile Include="Eventing\UncommittedEvent.cs" />
     <Compile Include="Eventing\UncommittedEventStream.cs" />
+    <Compile Include="Fluent\Ncqrs.cs" />
+    <Compile Include="Fluent\NcqrsInitializer.cs" />
     <Compile Include="GuidCombGenerator.cs" />
     <Compile Include="Commanding\CommandBase.cs" />
     <Compile Include="Commanding\CommandExecution\CommandExecutorWrapper.cs" />
