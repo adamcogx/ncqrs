@@ -73,52 +73,88 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 
             foreach (var pair in fieldMap) {
 				Type fieldType = pair.Value.FieldType;
+				var candidate = IsCandidate(fieldType);
 
-				//TODO: We need to analyze the pair.Value and potentially create new types to replace it with.
-				if (IsCandidate(fieldType)) {
-					fieldType = BuildFieldType(fieldType, moduleBuilder, typeRegistry);
+				if (candidate) {
+					fieldType = BuildFieldType(fieldType, candidate, moduleBuilder, typeRegistry);
 				}
 
 				typeBuilder.DefineField(pair.Key, fieldType, FieldAttributes.Public);
 			}
 		}
 
-		private static bool IsCandidate(Type fieldType)
+		private enum CandidateType
+		{
+			Not, Collection, Dictionary, NonSerializable, Entity
+		}
+
+		private class CandidateAnalysis
+		{
+			public CandidateAnalysis(CandidateType type)
+			{
+				this.Type = type;
+			}
+
+			public CandidateType Type
+			{
+				get;
+				private set;
+			}
+
+			public static implicit operator bool(CandidateAnalysis analysis)
+			{
+				return analysis.Type != CandidateType.Not;
+			}
+
+			public static implicit operator CandidateType(CandidateAnalysis analysis)
+			{
+				return analysis.Type;
+			}
+
+			public static implicit operator CandidateAnalysis(CandidateType type)
+			{
+				return new CandidateAnalysis(type);
+			}
+		}
+
+		private static CandidateAnalysis IsCandidate(Type fieldType)
 		{
 			if (!fieldType.IsValueType && fieldType != typeof(string)) {
 				if (fieldType.IsGenericType) {
 					var genParams = fieldType.GetGenericArguments();
 					var genType = fieldType.GetGenericTypeDefinition();
 					var genTypeInterfaces = genType.GetInterfaces();
+
 					if (genTypeInterfaces.Any(x => x == typeof(ICollection<>))) {
 						foreach (var parm in genParams) {
-							if (typeof(Entity).IsAssignableFrom(parm)) {
-								return true;
+							if (IsCandidate(parm)) {
+								return CandidateType.Collection;
 							}
 						}
 					}
+
 					if (genTypeInterfaces.Any(x => x == typeof(IDictionary<,>))) {
 						foreach (var parm in genParams) {
-							if (typeof(Entity).IsAssignableFrom(parm)) {
-								return true;
+							if (IsCandidate(parm)) {
+								return CandidateType.Dictionary;
 							}
 						}
 					}
-					if (fieldType.GetConstructors().Any(x => x.GetParameters().Length == 0)) {
-						return false;
-					} else {
-						return true;
-					}
 				}
+
 				if (!fieldType.GetCustomAttributes<SerializableAttribute>().Any()) {
-					return true;
+					return CandidateType.NonSerializable;
+				}
+
+				if (typeof(Entity<>).IsAssignableFrom(fieldType)) {
+					return CandidateType.Entity;
 				}
 			}
 
-			return false;
+			return CandidateType.Not;
 		}
 
-		private Type BuildFieldType(Type fieldType, ModuleBuilder moduleBuilder, Dictionary<Type, Type> typeRegistry)
+		private Type BuildFieldType(Type fieldType, CandidateType candidateType, ModuleBuilder moduleBuilder, Dictionary<Type, Type> typeRegistry)
 		{
 			if (fieldType.IsGenericType) {
 				var genType = fieldType.GetGenericTypeDefinition();

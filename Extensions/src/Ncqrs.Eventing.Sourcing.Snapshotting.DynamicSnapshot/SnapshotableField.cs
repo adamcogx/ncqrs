@@ -13,18 +13,42 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 		static SnapshotableField()
 		{
 			mappers.Add(typeof(AggregateRoot), GetAllForAggegrateRoot);
-			//TODO: Probably need to add one for Entities
-			mappers.Add(typeof(object), GetAllDefault);
+			mappers.Add(typeof(Entity<>), GetAllForEntity);
+		}
+
+		private static IEnumerable<FieldInfo> GetAllForEntity(Type type)
+		{
+			while (type != null) {
+				foreach (var field in GetSnapshotableFields(type))
+					if (!typeof(AggregateRoot).IsAssignableFrom(field.FieldType)) {
+						yield return field;
+					}
+
+				type = type.BaseType;
+			}
+		}
+
+		public static void AddMapper(Type rootType, Func<Type, IEnumerable<FieldInfo>> mapper)
+		{
+			mappers.Add(rootType, mapper);
 		}
 
 		public static IEnumerable<FieldInfo> GetAll(Type type)
 		{
+			bool found = false;
 			foreach (var mapper in mappers) {
 				if (mapper.Key.IsAssignableFrom(type)) {
+					found = true;
 					foreach (var field in mapper.Value(type))
 						yield return field;
 
 					yield break;
+				}
+			}
+
+			if (!found) {
+				foreach (var field in GetAll(type)) {
+					yield return field;
 				}
 			}
 		}

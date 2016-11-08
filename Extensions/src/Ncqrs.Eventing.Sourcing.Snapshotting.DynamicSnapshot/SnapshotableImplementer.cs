@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using Ncqrs.Domain;
+using System.Linq;
 
 namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 {
@@ -52,7 +53,7 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
             if (direction == TransferDirection.ToAggregateRoot)
             {
                 doTransfer = (source, sourceField, destination, destinationField)
-                    => destinationField.SetValue(destination, sourceField.GetValue(source));
+                    => destinationField.SetValue(destination, Translate(aggregate, destinationField, source, sourceField));
             }
             else
             {
@@ -80,5 +81,67 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
             }
         }
 
-    }
+		private object Translate(AggregateRoot aggregate, FieldInfo destinationField, object source, FieldInfo sourceField)
+		{
+			var value = sourceField.GetValue(source);
+
+			if (destinationField.FieldType.IsOfType(typeof(Entity<>)) {
+				return GenerateEntity(aggregate, destinationField.FieldType, value);
+			}
+
+			if (sourceField.FieldType.IsGenericType) {
+				var genDef = sourceField.FieldType.GetGenericTypeDefinition();
+			}
+		}
+
+		private object GenerateEntity(AggregateRoot aggregate, Type entityType, object value)
+		{
+			var constructor = FindConstructor(entityType, aggregate);
+			if (constructor == null) {
+				throw new InvalidOperationException(string.Format("Cannot find constructor for {0}", entityType));
+			}
+
+			//TODO:  We need to create a way for us to extract the id from the value for the entity
+			return constructor(aggregate, value;
+		}
+
+		private static readonly Type aggregateType = typeof(AggregateRoot);
+
+		private Func<AggregateRoot, Guid, object> FindConstructor(Type entityType, AggregateRoot aggregate)
+		{
+			var constructor = entityType.GetConstructors().FirstOrDefault(IsEntityConstructor);
+			int aggIndex, idIndex;
+
+			var parameters = constructor.GetParameters();
+
+			for (int i = 0; i < parameters.Length; i++) {
+				var pType = parameters[i].ParameterType;
+				if (pType.IsOfType(aggregateType)) {
+					aggIndex = i;
+				}
+				if (pType == typeof(Guid) && pType.Name.Equals("id")) {
+					idIndex = i;
+				}
+			}
+
+
+		}
+
+		private bool IsEntityConstructor(ConstructorInfo constructor)
+		{
+			var parms = constructor.GetParameters();
+			return parms.Any(p => p.ParameterType.IsOfType(typeof(AggregateRoot)))
+				&& parms.Any(p => p.ParameterType == typeof(Guid))
+				&& parms.Length == 2;
+		}
+
+		private object Translate(AggregateRoot root, FieldInfo aggregateField, object value)
+		{
+			var type = value.GetType();
+			if (type.IsGenericType) {
+				var genDef = value
+			}
+			return value;
+		}
+	}
 }
