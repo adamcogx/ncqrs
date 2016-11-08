@@ -18,12 +18,8 @@ namespace Ncqrs.EventBus
 
         private void OnEventProcessed(ElementProcessedEventArgs e)
         {
-            var handler = EventProcessed;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
+			EventProcessed?.Invoke(this, e);
+		}
 
         public void ProcessNext(IProcessingElement element)
         {
