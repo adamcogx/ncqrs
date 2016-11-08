@@ -53,12 +53,7 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
             if (snapshotType != null)
                 return snapshotType;
 
-            snapshotType = _typeBuilder.CreateType(aggregateType, _moduleBuilder);
-
-            if (snapshotType != null)
-            {
-                _typeRegistry.Add(aggregateType, snapshotType);
-            }
+            snapshotType = _typeBuilder.CreateType(aggregateType, _moduleBuilder, _typeRegistry);
 
             return snapshotType;
         }

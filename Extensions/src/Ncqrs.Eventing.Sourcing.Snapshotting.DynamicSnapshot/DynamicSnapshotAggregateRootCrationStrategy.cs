@@ -26,10 +26,15 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
         /// </summary>
         /// <param name="aggregateRootType">Type of the aggregate root.</param>
         /// <returns></returns>
-        public override AggregateRoot CreateAggregateRoot(Type aggregateRootType, Guid? id = null)
+        public override AggregateRoot CreateAggregateRoot(Type aggregateRootType, Guid? id)
         {
 			// We deliberately don't do anything with the id, as it will be taken care of by the Snapshot.
             return _factory.Create(aggregateRootType);
         }
+
+		public override AggregateRoot CreateAggregateRoot(Type aggregateRootType)
+		{
+			return _factory.Create(aggregateRootType);
+		}
 	}
 }

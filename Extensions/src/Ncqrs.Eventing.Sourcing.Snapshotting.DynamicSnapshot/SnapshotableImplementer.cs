@@ -65,6 +65,12 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
                 FieldInfo aggregateField;
                 if (aggregateFieldMap.TryGetValue(snapshotField.Name, out aggregateField))
                 {
+
+					// TODO:  If the fields are:
+					// ICollection - need to transfer record at a time.
+					// IDictionary - need to transfer one at a time (but it different than ICollection... maybe)
+					// Entity - this is a special case coming and going
+					// Complex object - we need to transfer field by field
                     doTransfer(snapshot, snapshotField, aggregate, aggregateField);
                 }
                 else
