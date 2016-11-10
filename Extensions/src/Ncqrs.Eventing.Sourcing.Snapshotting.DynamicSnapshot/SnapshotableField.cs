@@ -18,7 +18,7 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 
 		private static IEnumerable<FieldInfo> GetAllForEntity(Type type)
 		{
-			while (type != null) {
+			while (type != null && type != typeof(AggregateRoot)) {
 				foreach (var field in GetSnapshotableFields(type))
 					if (!typeof(AggregateRoot).IsAssignableFrom(field.FieldType)) {
 						yield return field;
@@ -37,7 +37,7 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 		{
 			bool found = false;
 			foreach (var mapper in mappers) {
-				if (mapper.Key.IsAssignableFrom(type)) {
+				if (type.IsOfType(mapper.Key)) {
 					found = true;
 					foreach (var field in mapper.Value(type))
 						yield return field;
@@ -47,7 +47,7 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 			}
 
 			if (!found) {
-				foreach (var field in GetAll(type)) {
+				foreach (var field in GetAllDefault(type)) {
 					yield return field;
 				}
 			}

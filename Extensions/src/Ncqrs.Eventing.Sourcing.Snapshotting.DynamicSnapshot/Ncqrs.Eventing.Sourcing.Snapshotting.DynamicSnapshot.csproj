@@ -53,6 +53,7 @@
     <Compile Include="AggregateSupportsDynamicSnapshotValidator.cs" />
     <Compile Include="AssemblyModuleVersionId.cs" />
     <Compile Include="ByteExtensions.cs" />
+    <Compile Include="Snapshot.cs" />
     <Compile Include="SnapshotRestorer.cs" />
     <Compile Include="DynamicSnapshotAssembly.cs" />
     <Compile Include="DynamicSnapshotAggregateRootCrationStrategy.cs" />
