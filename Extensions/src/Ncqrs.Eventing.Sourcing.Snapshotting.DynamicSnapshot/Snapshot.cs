@@ -50,9 +50,13 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
             if (!fieldType.IsValueType && fieldType != typeof(string)) {
 				if (fieldType.IsGenericType) {
 					var genArguments = fieldType.GetGenericArguments();
-					if (fieldType.GetInterfaces().Any(x => x.IsOfType(typeof(ICollection<>)) || x.IsOfType(typeof(IDictionary<,>)))) {
-						foreach (var parm in genArguments) {
-							if (RequiresCustomSnapshotting(parm)) {
+					var interfaces = fieldType.GetInterfaces();
+					foreach (var parm in genArguments) {
+						if (RequiresCustomSnapshotting(parm)) {
+							if (interfaces.Any(x => x.IsOfType(typeof(IDictionary<,>)))) {
+								return CandidateType.Dictionary;
+							}
+							if (interfaces.Any(x => x.IsOfType(typeof(ICollection<>)))) {
 								return CandidateType.Collection;
 							}
 						}

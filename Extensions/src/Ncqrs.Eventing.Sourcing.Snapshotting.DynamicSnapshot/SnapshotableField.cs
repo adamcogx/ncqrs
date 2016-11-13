@@ -12,8 +12,8 @@ namespace Ncqrs.Eventing.Sourcing.Snapshotting.DynamicSnapshot
 
 		static SnapshotableField()
 		{
-			mappers.Add(typeof(AggregateRoot), GetAllForAggegrateRoot);
-			mappers.Add(typeof(Entity<>), GetAllForEntity);
+			AddMapper(typeof(AggregateRoot), GetAllForAggegrateRoot);
+			AddMapper(typeof(Entity<>), GetAllForEntity);
 		}
 
 		private static IEnumerable<FieldInfo> GetAllForEntity(Type type)
