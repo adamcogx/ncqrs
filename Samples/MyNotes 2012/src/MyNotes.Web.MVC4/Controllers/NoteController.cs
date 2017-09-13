@@ -76,11 +76,22 @@ namespace MyNotes.Web.MVC4.Controllers
         [HttpPost]
         public ActionResult Add(CreateNewNote command)
         {
-            ChannelHelper.Use(NoteController.channelFactory.CreateChannel(), (client) => client.Execute(new ExecuteRequest(command)));
+            ChannelHelper.Use(NoteController.channelFactory.CreateChannel(), (client) => {
+				client.Execute(new ExecuteRequest(command));
+			});
 
-            // Return user back to the index that
-            // displays all the notes.));
-            return RedirectToAction("Index", "Note");
+			ChannelHelper.Use(NoteController.channelFactory.CreateChannel(), (client) => {
+				client.Execute(new ExecuteRequest(new AddComment(command.Id, Guid.NewGuid(), "Comment 1")));
+			});
+
+			ChannelHelper.Use(NoteController.channelFactory.CreateChannel(), (client) => {
+				client.Execute(new ExecuteRequest(new AddComment(command.Id, Guid.NewGuid(), "Comment 2")));
+			});
+
+
+			// Return user back to the index that
+			// displays all the notes.));
+			return RedirectToAction("Index", "Note");
         }
 
         public ActionResult Report()

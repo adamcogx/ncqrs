@@ -39,6 +39,11 @@ namespace MyNotes.Domain
             });
         }
 
+		public void AddComment(Guid entityId, string comment)
+		{
+			ApplyEvent(new CommentAdded { Comment = comment, EntityId = entityId });
+		}
+
         protected void OnNewNoteAdded(NoteAdded e)
         {
             this.text = e.Text;
@@ -49,5 +54,27 @@ namespace MyNotes.Domain
         {
             this.text = e.Text;
         }
+
+		private Dictionary<Guid, Comment> comments = new Dictionary<Guid, Comment>();
+
+		protected void OnCommentAdded(CommentAdded e)
+		{
+			var comment = new Comment(this, e.EntityId, e.Comment);
+			comments.Add(e.EntityId, comment);
+		}
     }
+
+	[Serializable]
+	public class CommentHolder
+	{
+		public CommentHolder(string message)
+		{
+			this.Message = message;
+		}
+
+		public string Message
+		{
+			get; private set;
+		}
+	}
 }
